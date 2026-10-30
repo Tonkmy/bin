@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+<title>半本胭脂谱</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap">
+<style>
+/* 布局：单屏手机卷轴。顶栏（铺名/日子/钱）→ 目标笺 → 画卷 → 行动格 → 货架 → 记事；弹出的花笺承载一切选择。
+   配色：黛青夜色作底，藕荷花笺作纸，胭脂红作印，铜色点钱。单一视觉世界，不做明暗两套。 */
+:root{
+  --ink:#1b3035; --ink-2:#22404a; --ink-3:#2d525c;
+  --paper:#f3e9e5; --paper-2:#e8d8d3; --paper-line:#cfb9b3;
+  --rouge:#a42e3b; --rouge-2:#cf6074; --bronze:#c49656; --jade:#5d9a88;
+  --on-ink:#e4ece9; --on-ink-dim:#9db6b2; --on-paper:#2e2730; --on-paper-dim:#7a6a6f;
+  --f-brush:"Ma Shan Zheng","STXingkai","STKaiti","KaiTi",serif;
+  --f-body:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--ink);color:var(--on-ink);font-family:var(--f-body);font-size:15px;line-height:1.7;overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;
+  touch-action:manipulation;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--rouge-2);outline-offset:2px}
+#app{max-width:440px;height:100%;margin:0 auto;display:flex;flex-direction:column;position:relative}
+
+/* —— 封面 —— */
+.cover{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:20px;padding-block:28px 24px}
+.cover-head{display:flex;justify-content:center;align-items:flex-start;gap:14px}
+.v-title{writing-mode:vertical-rl;font-family:var(--f-brush);font-size:58px;line-height:1;letter-spacing:.1em;color:var(--paper)}
+.v-sub{writing-mode:vertical-rl;font-size:13px;letter-spacing:.35em;color:var(--on-ink-dim);padding-top:6px}
+.stamp{display:grid;place-items:center;width:46px;height:46px;background:var(--rouge);color:var(--paper);font-family:var(--f-brush);
+  font-size:19px;line-height:1.05;border-radius:4px;transform:rotate(-4deg);margin-top:10px;text-align:center}
+.prologue{background:var(--paper);color:var(--on-paper);border-radius:3px;padding:18px 18px 16px;font-size:15px;line-height:2;
+  box-shadow:0 1px 0 var(--paper-line) inset, 0 10px 30px rgba(0,0,0,.25)}
+.prologue p+p{margin-top:8px}
+.prologue em{font-style:normal;color:var(--rouge)}
+.namebox{display:flex;flex-direction:column;gap:8px}
+.namebox label{font-size:13px;color:var(--on-ink-dim);letter-spacing:.1em}
+.namebox input{font:inherit;font-size:18px;text-align:center;letter-spacing:.2em;color:var(--paper);background:var(--ink-2);
+  border:1px solid var(--ink-3);border-radius:3px;padding:10px}
+.btn-main{display:block;width:100%;background:var(--rouge);color:var(--paper);font-family:var(--f-brush);font-size:24px;letter-spacing:.3em;
+  padding:10px 0 8px;border-radius:3px}
+.btn-main:active{filter:brightness(.92)}
+.btn-ghost{display:block;width:100%;border:1px solid var(--ink-3);color:var(--on-ink);padding:10px 0;border-radius:3px;letter-spacing:.15em}
+.cover-foot{text-align:center;font-size:12px;color:var(--on-ink-dim)}
+
+/* —— 顶栏 —— */
+.top{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding-block:10px 8px;flex-shrink:0}
+.shopname{display:flex;align-items:center;gap:8px;min-width:0}
+.shopname b{font-family:var(--f-brush);font-weight:400;font-size:22px;letter-spacing:.08em;color:var(--paper)}
+.shopname small{font-size:12px;color:var(--on-ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-stamp{width:22px;height:22px;display:grid;place-items:center;background:var(--rouge);color:var(--paper);font-family:var(--f-brush);font-size:13px;border-radius:2px;flex-shrink:0}
+#b-music{width:32px;height:32px;border:1px solid var(--ink-3);border-radius:50%;font-family:var(--f-brush);font-size:16px;color:var(--on-ink-dim)}
+#b-music[aria-pressed="true"]{color:var(--paper);border-color:var(--rouge-2)}
+.dateline{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--on-ink-dim);letter-spacing:.05em}
+.slots{display:inline-flex;gap:4px}
+.slots i{width:8px;height:8px;border-radius:50%;border:1px solid var(--on-ink-dim)}
+.slots i.used{background:var(--rouge-2);border-color:var(--rouge-2)}
+.purse{text-align:right;font-size:13px;color:var(--on-ink-dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+.purse b{font-size:17px;color:var(--bronze);font-weight:600}
+
+/* —— 目标笺 —— */
+.goal{background:var(--paper);color:var(--on-paper);border-radius:3px;padding:8px 12px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;font-size:13.5px;line-height:1.55}
+.g-row{display:flex;gap:8px;align-items:baseline}
+.g-tag{font-style:normal;font-family:var(--f-brush);font-size:15px;color:var(--rouge);flex-shrink:0;width:2.2em}
+.g-row span{min-width:0}
+.g-row .dim{color:var(--on-paper-dim);font-size:12.5px}
+
+/* —— 主区 —— */
+main{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-block:12px 12px;scrollbar-width:none}
+main::-webkit-scrollbar{display:none}
+.scene{position:relative;height:186px;border-radius:3px;overflow:hidden;flex-shrink:0;background:var(--ink-2)}
+.scene canvas{display:block;width:100%;height:100%}
+.scene-cap{position:absolute;left:10px;bottom:7px;font-size:11.5px;color:var(--paper);text-shadow:0 1px 3px rgba(0,0,0,.6);letter-spacing:.08em}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.act{background:var(--ink-2);border:1px solid var(--ink-3);border-radius:3px;padding:10px 12px 9px;text-align:left;display:flex;flex-direction:column;gap:1px}
+.act b{font-family:var(--f-brush);font-weight:400;font-size:21px;line-height:1.2;color:var(--paper);letter-spacing:.06em}
+.act small{font-size:11.5px;color:var(--on-ink-dim);line-height:1.45}
+.act:active:not(:disabled){background:var(--ink-3)}
+.act:disabled{opacity:.4}
+.act.close{grid-column:1/-1;background:var(--rouge);border-color:var(--rouge);text-align:center;align-items:center}
+.act.close small{color:var(--paper)}
+.shelf{display:flex;flex-direction:column;gap:6px}
+.shelf h3{font-family:var(--f-brush);font-weight:400;font-size:15px;color:var(--on-ink-dim);letter-spacing:.2em}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;padding:2px 8px 2px 6px;border-radius:2px;background:var(--ink-2);color:var(--on-ink);font-variant-numeric:tabular-nums}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.chip .top3{color:var(--bronze);font-size:11px}
+.chips .none{font-size:12.5px;color:var(--on-ink-dim)}
+.log{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--on-ink-dim);border-top:1px solid var(--ink-3);padding-top:8px}
+.log p:first-child{color:var(--on-ink)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding-block:8px 10px;flex-shrink:0;border-top:1px solid var(--ink-3)}
+.tabs button{font-family:var(--f-brush);font-size:17px;color:var(--on-ink-dim);padding:6px 0;border-radius:3px;letter-spacing:.1em}
+.tabs button:active{background:var(--ink-2);color:var(--paper)}
+
+/* —— 花笺（弹窗） —— */
+#mask{position:fixed;inset:0;z-index:20;background:rgba(10,22,25,.62);display:flex;align-items:flex-end;justify-content:center;
+  padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet{width:100%;max-width:440px;max-height:86%;overflow-y:auto;background:var(--paper);color:var(--on-paper);border-radius:6px 6px 0 0;
+  padding:18px 18px 14px;display:flex;flex-direction:column;gap:12px;animation:rise .22s ease-out;
+  background-image:repeating-linear-gradient(0deg,transparent 0 31px,rgba(164,46,59,.06) 31px 32px)}
+@keyframes rise{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+.sh-head{display:flex;align-items:center;gap:10px}
+.sh-seal{width:34px;height:34px;display:grid;place-items:center;background:var(--rouge);color:var(--paper);font-family:var(--f-brush);font-size:19px;border-radius:3px;flex-shrink:0}
+.sh-title{font-family:var(--f-brush);font-size:23px;line-height:1.2;letter-spacing:.06em;color:var(--on-paper);text-wrap:balance}
+.sh-text{font-size:15px;line-height:1.95;display:flex;flex-direction:column;gap:8px}
+.sh-text .prev{font-size:13px;color:var(--jade);border-left:2px solid var(--jade);padding-left:8px;line-height:1.6}
+.sh-text .prev.bad{color:var(--rouge);border-color:var(--rouge)}
+.sh-text .note{font-size:13px;color:var(--on-paper-dim);line-height:1.7}
+.sh-text b{color:var(--rouge);font-weight:600}
+.sh-opts{display:flex;flex-direction:column;gap:7px}
+.opt{text-align:left;border:1px solid var(--paper-line);border-radius:3px;padding:9px 12px;background:rgba(255,255,255,.35);display:flex;flex-direction:column;gap:1px;color:var(--on-paper)}
+.opt small{font-size:12px;color:var(--on-paper-dim);line-height:1.5}
+.opt.hl{border-color:var(--rouge);background:rgba(164,46,59,.07)}
+.opt.hl small{color:var(--rouge)}
+.opt:active:not(:disabled){background:var(--paper-2)}
+.opt:disabled{opacity:.45}
+.sh-input{font:inherit;font-size:18px;text-align:center;letter-spacing:.2em;padding:9px;border:1px solid var(--paper-line);border-radius:3px;background:#fff8f5;color:var(--on-paper)}
+.card-list{display:flex;flex-direction:column;gap:8px}
+.pcard{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;border-bottom:1px dashed var(--paper-line);padding-bottom:8px}
+.pcard .sh-seal{grid-row:span 2}
+.pcard b{font-weight:600}
+.pcard small{font-size:12.5px;color:var(--on-paper-dim);line-height:1.5}
+.bar{height:5px;background:var(--paper-2);border-radius:3px;overflow:hidden;grid-column:2}
+.bar i{display:block;height:100%;background:var(--rouge-2)}
+.page{border:1px solid var(--paper-line);border-radius:3px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.page.lock{border-style:dashed;color:var(--on-paper-dim)}
+.page .pn{font-family:var(--f-brush);font-size:17px;color:var(--rouge)}
+.page.lock .pn{color:var(--on-paper-dim)}
+.page small{font-size:12.5px;line-height:1.55}
+
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:15;max-width:min(400px,calc(100% - 32px));
+  background:var(--paper);color:var(--on-paper);font-size:13.5px;padding:7px 14px;border-radius:3px;box-shadow:0 6px 18px rgba(0,0,0,.3);text-align:center}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+</style>
+
+<div id="app">
+  <section class="cover" id="cover">
+    <div class="cover-head">
+      <div class="v-sub">青溪镇 · 拾芳斋</div>
+      <h1 class="v-title">半本胭脂谱</h1>
+      <div class="stamp">拾<br>芳</div>
+    </div>
+    <div class="prologue">
+      <p>娘走的那年冬天，留下一间胭脂铺，和半本没写完的方子。</p>
+      <p>舅舅说：“丫头家守不住铺子。钱庄的债我替你还，铺子归我。”</p>
+      <p>你没吵。你把方子揣进怀里，把舅舅送出门，拔下了门闩。</p>
+      <p>青溪镇的春天很香。也很贵：<em>四千文，一年还清。</em></p>
+    </div>
+    <div class="namebox">
+      <label for="name-in">你的名字</label>
+      <input id="name-in" maxlength="6" value="阿沅" autocomplete="off">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-main" id="b-start">推开铺门</button>
+      <button class="btn-ghost" id="b-continue" hidden>接着做生意</button>
+    </div>
+    <p class="cover-foot" id="cover-foot"></p>
+  </section>
+
+  <section id="game" hidden style="flex:1;min-height:0;display:flex;flex-direction:column">
+    <header class="top">
+      <div class="shopname"><span class="mini-stamp">拾</span><b>拾芳斋</b><small id="t-name"></small></div>
+      <button id="b-music" aria-pressed="false" aria-label="背景音乐">乐</button>
+      <div class="dateline"><span id="t-date"></span><span class="slots" id="t-slots"></span></div>
+      <div class="purse"><b id="t-money">0</b> 文 · 名声 <span id="t-rep">0</span></div>
+    </header>
+    <section class="goal" aria-live="polite">
+      <div class="g-row"><i class="g-tag">当下</i><span id="g-quest"></span></div>
+      <div class="g-row"><i class="g-tag">欠债</i><span id="g-debt"></span></div>
+    </section>
+    <main id="main">
+      <div class="scene"><canvas id="cv" aria-label="拾芳斋门前"></canvas><div class="scene-cap" id="scene-cap"></div></div>
+      <div class="acts" id="acts"></div>
+      <div class="shelf">
+        <h3>花 材</h3><div class="chips" id="c-flowers"></div>
+        <h3>货 架</h3><div class="chips" id="c-goods"></div>
+      </div>
+      <div class="log" id="log"></div>
+    </main>
+    <nav class="tabs">
+      <button data-panel="market">集市</button>
+      <button data-panel="book">方子</button>
+      <button data-panel="people">人物</button>
+      <button data-panel="gallery">图鉴</button>
+    </nav>
+  </section>
+</div>
+
+<div id="mask" hidden><div class="sheet" role="dialog" aria-modal="true" id="sheet"></div></div>
+<div id="toast" hidden></div>
+
+<script>
+/*MODEL-START*/
+/* ============ 模型：只改状态 S，不碰界面（可在 node 里跑数值体检） ============ */
+let R = Math.random;
+function setRng(f){ R = f; }
+const ri = (a,b) => a + Math.floor(R()*(b-a+1));
+const pick = a => a[Math.floor(R()*a.length)];
+function pickW(items, ws){ let s=0; for(const w of ws) s+=w; let x=R()*s; for(let i=0;i<items.length;i++){ x-=ws[i]; if(x<0) return items[i]; } return items[items.length-1]; }
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const HOOKS = { unlock(){}, checkpoint(){}, restoreCheckpoint(){}, restart(){}, sfx(){} };
+const EVQ = [];   // 待弹出的事件：{title, seal, text, opts:[{t,s,fn}], input} 或 {run:fn}
+
+const SLOTS = ['清晨','午后','黄昏'];
+const DAYS_PER_SEASON = 7, TOTAL_DAYS = 28;
+const DEBTS = [200, 500, 1200, 2100];
+const UPKEEP = 10, STALL_PRICE = 7, PEARL_PRICE = 40;
+const SEASONS = [
+  { n:'春', flowers:['桃花','梨花','蔷薇'], w:[4,3,2], cap:'春 · 桃花开了半坡' },
+  { n:'夏', flowers:['石榴花','茉莉','栀子'], w:[3,3,2], cap:'夏 · 茉莉夜里最香',
+    intro:'入夏了。后山的桃花谢尽，石榴花开得正闹，茉莉和栀子夜里香得人睡不着。' },
+  { n:'秋', flowers:['木芙蓉','桂花','白菊'], w:[3,4,3], cap:'秋 · 一条街都是桂花味',
+    intro:'立秋。桂花一夜之间全开了，整条街都是甜的。木芙蓉早上是白的，到傍晚就红了。' },
+  { n:'冬', flowers:['红梅','白梅','腊梅'], w:[3,3,1], scarce:true, cap:'冬 · 后山只剩梅花',
+    intro:'落了第一场雪。后山只剩红梅、白梅，带香的腊梅难得一见。秋天存下的桂花，现在金贵了。' },
+];
+const FLOWERS = {
+  '桃花':{tags:['红'],color:'#f0a3b3'}, '梨花':{tags:['白'],color:'#f4f2ec'}, '蔷薇':{tags:['红','香'],color:'#dc5d78'},
+  '石榴花':{tags:['红'],color:'#e0483b'}, '茉莉':{tags:['白','香'],color:'#fbfaf0'}, '栀子':{tags:['白','香'],color:'#f5efd8'},
+  '木芙蓉':{tags:['红'],color:'#ea9ab0'}, '桂花':{tags:['香'],color:'#e6ad46'}, '白菊':{tags:['白'],color:'#efeadc'},
+  '红梅':{tags:['红'],color:'#c2334a'}, '白梅':{tags:['白'],color:'#edf0f2'}, '腊梅':{tags:['香'],color:'#e9c75a'},
+};
+const RECIPES = {
+  rouge: {n:'胭脂',   need:{红:2},          cost:0,  base:32,  color:'#b02a3a', page:1, how:'红花捣汁，绢滤三遍，晒成胭脂饼。只要花，不费别的料。'},
+  lip:   {n:'口脂',   need:{红:1,香:1},     cost:12, base:52,  color:'#c8455a', page:2, how:'红花一味，香花一味，蜂蜡温化，趁热灌进小瓷盒。'},
+  powder:{n:'香粉',   need:{白:2},          cost:10, base:44,  color:'#eadcd4', page:3, how:'白花研末，掺米粉，过绢筛三遍，要细得能吹起来。'},
+  dew:   {n:'花露',   need:{香:3},          cost:6,  base:80,  color:'#b9d2de', page:4, how:'香花三味，甑中蒸，接上头那一层水汽。'},
+  cream: {n:'雪肌膏', need:{白:1,香:1}, pearl:1, cost:10, base:130, color:'#f2eee4', page:5, how:'白花、香花与珍珠粉同研，调入猪脂，冬天抹手不裂。'},
+  mine:  {n:'自创',   need:{红:1,白:1,香:1}, cost:15, base:160, color:'#8c1f3f', page:6, how:'最后一页是空白的。这一味，是你自己的。'},
+};
+const RECIPE_ORDER = ['rouge','lip','powder','dew','cream','mine'];
+const QN = ['寻常','佳品','上品'], QM = [1, 1.3, 1.7];
+const UPGRADES = {
+  sign:  {n:'新招牌',   cost:60,  d:'江迟题的字。每次开张多一位客人。', req:S=>S.met.chi, lock:'要先认识一个会写字的人'},
+  mirror:{n:'铜镜',     cost:220, d:'给客人试色。售价 +10%。'},
+  censer:{n:'熏香炉',   cost:260, d:'满室生香。客人称心时，名声多 +1。'},
+  box:   {n:'描梅漆盒', cost:360, d:'江迟画的梅枝盒子。售价 +15%。', req:S=>S.story.chi>=2, lock:'江迟还没给你画盒子'},
+  loft:  {n:'二楼雅间', cost:600, d:'贵客肯上楼坐。每次开张多一位客人，官家小姐常来。', req:S=>S.rep>=40, lock:'名声 40 以上才有贵客'},
+};
+const UP_ORDER = ['sign','mirror','censer','box','loft'];
+
+const CUSTOMERS = [
+  {id:'xiu',   n:'绣娘',     seal:'绣', wants:['rouge','powder'], pay:0.9, w:3,
+    lines:['我攒了半个月的工钱，想买一盒{r}。','手上全是针眼，脸上总得有点颜色。有{r}吗？']},
+  {id:'bride', n:'待嫁的姑娘', seal:'喜', wants:['lip','rouge'], pay:1.3, w:2,
+    lines:['下月出阁，娘让我来挑一盒{r}，要最好的。','（红着脸）听说拾芳斋的{r}……用了好看。']},
+  {id:'maid',  n:'小丫鬟',   seal:'鬟', wants:['powder','dew','rouge'], pay:1.0, w:3,
+    lines:['我家小姐说，要{r}，香而不俗的那种。','小姐赏了我几个钱，我、我想给自己买一点{r}。']},
+  {id:'opera', n:'戏班花旦', seal:'戏', wants:['rouge','lip'], pay:1.0, w:2, buys:2,
+    lines:['今晚唱《牡丹亭》，{r}要艳，来两盒！','班子里的姐妹托我捎{r}，有多少要多少，先来两盒。']},
+  {id:'scholar',n:'书生',    seal:'书', wants:['cream','powder','lip'], pay:1.1, w:2,
+    lines:['家母冬天手冷，想给她带一盒{r}。','（压低声音）不是我用，是给家母的。{r}，有吗？']},
+  {id:'lady',  n:'官家小姐', seal:'贵', wants:['dew','cream','mine','lip'], pay:1.0, premium:1.6, w:1, minRep:30,
+    lines:['听说你这儿有好东西。{r}，要上品。','丫鬟说拾芳斋的{r}不输扬州。拿你最好的来。']},
+  {id:'granny',n:'白发婆婆', seal:'寿', wants:['powder','rouge'], pay:0.8, w:1, kind:true,
+    lines:['我这把年纪，还用得着{r}吗？……那就来一点。','老头子走了三年了。今儿是他生辰，我想抹点{r}。']},
+  {id:'aunt',  n:'舅母',     seal:'舅', wants:['rouge','lip','powder'], haggle:true, w:0.6, minDay:4,
+    lines:['哟，外甥女。自家人买{r}，总不好收全价吧？']},
+];
+
+const PEOPLE = {
+  zhi:{ n:'白芷', seal:'芷', title:'后山采药的女子', likes:'powder', hint:'后山常有人采药',
+    talk:[
+      ['白芷在溪边洗药，头也没抬：“来啦？桃花坡那边，今早又开了一片。”','她塞给你一小包晒干的白芷：“泡水喝。熬夜调胭脂，手会抖。”'],
+      ['她教你分辨哪些花要趁露水采，说着说着自己先笑了：“我在夫家五年，没人听我说过这么多话。”','她把药篓放下，帮你筛了一下午的香粉，指甲缝里都是白的。'],
+      ['白芷靠在你肩上数星星，数到一半睡着了。药篓里的白芷香，是你闻过最安心的味道。','“{n}，”她说，“等铺子稳了，我们去一趟扬州吧。听说那边的女人，可以自己当掌柜。”'],
+    ]},
+  chi:{ n:'江迟', seal:'迟', title:'桥头卖画的', likes:'rouge', hint:'桥头有个卖画的，开张时会路过',
+    talk:[
+      ['江迟在桥头支着画摊。见你来，把一幅没人要的梅花往身后藏了藏。','“你家的胭脂，”他说，“化开的红比朱砂软，画梅花正好。”'],
+      ['他用你的胭脂画了一枝桃花，花是红的，枝是墨的。“送你，”他说，“不值钱。”','他问方子上的字是谁写的。你说是娘。他看了很久：“你娘写字，收笔很硬。”'],
+      ['江迟在画你铺子的门脸，画到招牌那里停了笔，抬头看你：“你站过来一点。”','他把手洗了三遍，指尖的红还是洗不掉。“不洗了，”他说，“就当是你的颜色。”'],
+    ]},
+  zhao:{ n:'萧照', seal:'照', title:'渡口撑船的', likes:'dew', hint:'渡口的船家，春天第五日夜里会来',
+    talk:[
+      ['渡口风大，萧照正在补帆，嘴里叼着根草：“要捎什么？扬州的、苏州的，都行。”','他扔给你一个莲蓬：“船上吃不完。”'],
+      ['他撑船载你在溪上转了一圈。“你看，”他指着岸上的灯，“那盏是你的。”','“我娘说，”他摸了摸腕上的红绳，“撑船的人不能心急。水急的时候，更不能。”'],
+      ['他在船头给你留了个位置，铺了块干净的布。“坐，”他说，“今天不收船钱。”','萧照把一包扬州的松子糖塞给你：“一路上都在想，你吃不吃甜的。”'],
+    ]},
+};
+const STORY_AT = [25, 50, 75];
+const ENDINGS = {
+  zhi:{n:'双姝'}, chi:{n:'画中人'}, zhao:{n:'顺流'}, alone:{n:'一灯'}, bad:{n:'风雪'},
+};
+const ENDING_ORDER = ['zhi','chi','zhao','alone','bad'];
+
+const QUESTS = [
+  {t:'清晨去后山采花，带露的花最香', done:S=>S.flags.gathered},
+  {t:'照方子第一页，调出第一批胭脂', done:S=>S.flags.crafted},
+  {t:'开张，把胭脂卖给第一位客人', done:S=>S.flags.sold},
+  {t:'春末还上钱庄第一笔', done:S=>S.paid[0]},
+  {t:'把手艺练到三成，读懂方子第二页', done:S=>S.recipes.includes('lip')},
+  {t:'夏末还第二笔', done:S=>S.paid[1]},
+  {t:'七夕（秋第3日）夜里乞巧会，留一盒最好的货', done:S=>!!S.flags.qixi},
+  {t:'秋末还第三笔', done:S=>S.paid[2]},
+  {t:'攒够年关的钱，守住拾芳斋', done:S=>S.paid[3]},
+];
+
+function newState(name){
+  return { v:1, name:name||'阿沅', day:1, slot:0, money:120, rep:0, exp:0,
+    flowers:{}, goods:{}, pearl:0, recipes:['rouge'], up:{},
+    met:{zhi:false,chi:false,zhao:false}, aff:{zhi:0,chi:0,zhao:0}, story:{zhi:0,chi:0,zhao:0},
+    visited:{}, flags:{}, paid:[false,false,false,false], stall:{flowers:4,pearl:2},
+    stat:{sold:0,earned:0,crafted:0}, mine:'', log:[], ended:null };
+}
+const seasonIdx = S => Math.min(3, Math.floor((S.day-1)/DAYS_PER_SEASON));
+const dayIn = S => (S.day-1)%DAYS_PER_SEASON + 1;
+const level = S => Math.min(10, 1 + Math.floor(S.exp/3));
+const rname = (S,rid) => rid==='mine' ? (S.mine || '自创胭脂') : RECIPES[rid].n;
+function log(S, t){ S.log.unshift(t); if(S.log.length>30) S.log.length=30; }
+function addRep(S, k){ S.rep = clamp(S.rep + k, 0, 100); }
+function addAff(S, p, k){ S.aff[p] = clamp(S.aff[p] + k, 0, 100); }
+const fmtName = (S, t) => t.replace(/\{n\}/g, S.name);
+
+/* —— 货 —— */
+function stock(S, rid){ const g=S.goods[rid]; return g ? g[0]+g[1]+g[2] : 0; }
+function bestQ(S, rid){ const g=S.goods[rid]; if(!g) return -1; for(let q=2;q>=0;q--) if(g[q]>0) return q; return -1; }
+function takeBest(S, rid){ const q=bestQ(S,rid); if(q>=0) S.goods[rid][q]--; return q; }
+function totalGoods(S){ return RECIPE_ORDER.reduce((s,r)=>s+stock(S,r),0); }
+function inStock(S){ return RECIPE_ORDER.filter(r=>stock(S,r)>0); }
+
+/* —— 花：按标签分配，回溯求解 —— */
+function solve(S, need){
+  const units=[]; for(const t in need) for(let i=0;i<need[t];i++) units.push(t);
+  const avail={...S.flowers}, use={};
+  const names=Object.keys(avail).filter(f=>avail[f]>0)
+    .sort((a,b)=>FLOWERS[a].tags.length-FLOWERS[b].tags.length || avail[b]-avail[a]);
+  const dfs=i=>{
+    if(i===units.length) return true;
+    for(const f of names){
+      if(avail[f]>0 && FLOWERS[f].tags.includes(units[i])){
+        avail[f]--; use[f]=(use[f]||0)+1;
+        if(dfs(i+1)) return true;
+        avail[f]++; use[f]--;
+      }
+    }
+    return false;
+  };
+  if(!dfs(0)) return null;
+  for(const f in use) if(!use[f]) delete use[f];
+  return use;
+}
+function craftBlock(S, rid){
+  const r=RECIPES[rid];
+  if(!S.recipes.includes(rid)) return '方子还没读懂';
+  if(S.money < r.cost) return `要 ${r.cost} 文买蜂蜡、米粉这些料`;
+  if(r.pearl && S.pearl < r.pearl) return '缺珍珠粉';
+  if(!solve(S, r.need)) return '花材不够';
+  return '';
+}
+const batchSize = S => 2 + (level(S)>=6?1:0);
+function needText(rid){
+  const r=RECIPES[rid]; const p=[];
+  for(const t in r.need) p.push(`${t}花×${r.need[t]}`);
+  if(r.pearl) p.push('珍珠粉×1');
+  if(r.cost) p.push(`${r.cost} 文`);
+  return p.join(' + ');
+}
+
+/* —— 时辰 —— */
+const slotsLeft = S => 3 - S.slot;
+function useSlot(S){ S.slot = Math.min(3, S.slot+1); }
+
+/* —— 行动：采花 —— */
+function gather(S){
+  const se=SEASONS[seasonIdx(S)];
+  let n = ri(2,3) + (S.slot===0?1:0) + (S.story.zhi>=1?1:0) - (S.flags.rain?1:0) - (se.scarce?1:0);
+  n = Math.max(1, n);
+  const rained = !!S.flags.rain; S.flags.rain=false;
+  const got={};
+  for(let i=0;i<n;i++){ const f=pickW(se.flowers, se.w); got[f]=(got[f]||0)+1; S.flowers[f]=(S.flowers[f]||0)+1; }
+  const dawn = S.slot===0;
+  useSlot(S); S.flags.gathered=true;
+  const txt = Object.entries(got).map(([f,k])=>`${f}×${k}`).join('、');
+  log(S, `去后山采得 ${txt}${dawn?'（带露）':''}${rained?'，昨夜的雨打落了一些':''}。`);
+  if(!S.met.zhi && S.day>=2){
+    S.met.zhi=true; S.aff.zhi=10;
+    EVQ.push({ title:'后山 · 白芷', seal:'芷',
+      text:`<p>后山的雾还没散。一个背药篓的女子蹲在溪边，往篓里放一把白芷。</p><p>她看了看你篮子里的花：“摘花要摘半开的。全开了，香气就散了。”</p><p>她叫白芷，和篓里的药一个名字。“我娘起的。她说白芷不起眼，可是能止痛。”</p>`,
+      opts:[{t:'记下了', s:'认识了白芷，可以去拜访她'}] });
+    log(S,'在后山认识了采药的白芷。');
+  }
+  return {got, n, dawn};
+}
+
+/* —— 行动：调制 —— */
+function rollQ(S){
+  const lv=level(S), x=R();
+  const p3=0.04+lv*0.05, p2=0.25+lv*0.03;
+  let q = x<p3 ? 2 : x<p3+p2 ? 1 : 0;
+  if(S.flags.dream){ q=Math.max(q,1); S.flags.dream=false; }
+  return q;
+}
+function craft(S, rid){
+  const r=RECIPES[rid]; const use=solve(S, r.need);
+  for(const f in use){ S.flowers[f]-=use[f]; if(S.flowers[f]<=0) delete S.flowers[f]; }
+  S.money-=r.cost; if(r.pearl) S.pearl-=r.pearl;
+  const lv0=level(S), q=rollQ(S), n=batchSize(S);
+  S.goods[rid] = S.goods[rid] || [0,0,0]; S.goods[rid][q]+=n;
+  S.exp += 1 + (q===2?1:0); S.stat.crafted++;
+  useSlot(S); S.flags.crafted=true;
+  const lv1=level(S);
+  log(S, `调出 ${n} 盒${rname(S,rid)}（${QN[q]}）。${lv1>lv0?`手艺长进到 ${lv1} 成。`:''}`);
+  checkPages(S);
+  return {n, q, lvUp: lv1>lv0, lv:lv1};
+}
+function unlockRecipe(S, rid){ if(!S.recipes.includes(rid)){ S.recipes.push(rid); log(S, `学会了${rname(S,rid)}。`); } }
+function checkPages(S){
+  const lv=level(S);
+  if(lv>=3 && !S.recipes.includes('lip')){
+    unlockRecipe(S,'lip');
+    EVQ.push({title:'方子 · 第二页', seal:'谱', text:`<p>手艺渐熟。你终于看懂了第二页那些蝇头小字：</p><p>“口脂：红花一味，香花一味，蜂蜡温化，趁热灌盒。”</p><p class="note">旁边还有娘的一行小注：<b>嫁女儿的人家，最舍得买这个。</b></p>`, opts:[{t:'记下了', s:'学会口脂'}]});
+  }
+  if(lv>=6 && !S.recipes.includes('dew')){
+    unlockRecipe(S,'dew');
+    EVQ.push({title:'方子 · 第四页', seal:'谱', text:`<p>第四页的字被水洇过，你对着灯看了半夜，才认出一个“甑”字。</p><p>原来是蒸花露的法子：香花三味，接甑盖上那一层水汽。</p><p class="note">娘在页脚写着：<b>香要藏，不要露。</b></p>`, opts:[{t:'记下了', s:'学会花露'}]});
+  }
+  if(lv>=7 && !S.recipes.includes('cream')){
+    if(S.flags.pearlSource){
+      unlockRecipe(S,'cream');
+      EVQ.push({title:'方子 · 第五页', seal:'谱', text:`<p>第五页要一味珍珠粉。萧照捎来的那包，正好用上。</p><p>白花、香花与珍珠粉同研，调进猪脂。冬天抹在手上，不裂口子。</p>`, opts:[{t:'记下了', s:'学会雪肌膏'}]});
+    } else if(!S.flags.pearlHint){
+      S.flags.pearlHint=true;
+      EVQ.push({title:'方子 · 第五页', seal:'谱', text:`<p>第五页你看懂了，可方子里要一味<b>珍珠粉</b>。青溪镇不产这个，药铺也没有。</p><p class="note">也许得托人从外地捎来。</p>`, opts:[{t:'记下了'}]});
+    }
+  }
+  if(lv>=9 && !S.recipes.includes('mine') && !S.flags.mineAsked){
+    S.flags.mineAsked=true;
+    EVQ.push({title:'方子 · 最后一页', seal:'谱', text:`<p>你翻到最后一页。是空白的。</p><p>娘没写完。或者说，她留给你写。</p><p>你调了一整夜：一味红，一味白，一味香。天亮的时候，那盒胭脂的颜色，你从没见过。</p><p>你要给它起个名字。</p>`,
+      input:{ph:'给你的胭脂起个名字', def:'沅上春'},
+      opts:[{t:'写进方子', s:'学会你自己的方子', fn:v=>{ S.mine=(v||'').replace(/[<>&"'\/]/g,'').trim().slice(0,6)||'沅上春'; unlockRecipe(S,'mine'); }}]});
+  }
+}
+
+/* —— 行动：开张 —— */
+function customerCount(S){
+  const n = 2 + Math.floor(S.rep/35) + [-1,0,1][Math.min(S.slot,2)] + (S.up.sign?1:0) + (S.up.loft?1:0)
+    + (S.flags.zhiRoom?1:0) + (S.day===6?2:0);
+  return clamp(n, 1, 6);
+}
+function festMult(S, rid){
+  if(S.day===12 && (rid==='powder'||rid==='dew')) return 1.3;
+  if(S.day===25 && (rid==='lip'||rid==='cream')) return 1.3;
+  return 1;
+}
+const priceMult = (S, rid) => (1 + S.rep/400) * (S.up.mirror?1.1:1) * (S.up.box?1.15:1) * festMult(S,rid);
+function makeCustomers(S){
+  const list=[]; const n=customerCount(S);
+  if(!S.met.chi && S.day>=3){
+    list.push({id:'chi', n:'青衫男子', seal:'迟', req:'rouge', pay:1.0, meet:'chi',
+      line:'他在柜台前站了很久，最后指着最便宜的那盒：“胭脂。不是送人，拿来画梅花。朱砂太贵了。”'});
+  }
+  while(list.length<n){
+    const pool=CUSTOMERS.filter(c=>(!c.minRep||S.rep>=c.minRep)&&(!c.minDay||S.day>=c.minDay));
+    const ws=pool.map(c=>{
+      let w=c.w;
+      if(c.id==='lady'&&S.up.loft) w*=3;
+      if(S.day===12&&(c.id==='maid'||c.id==='xiu')) w*=1.5;
+      if(c.haggle&&list.some(x=>x.haggle)) w=0;
+      return w;
+    });
+    const c=pickW(pool, ws);
+    const wants=c.wants.filter(r=>S.recipes.includes(r));
+    const req=wants.length ? pick(wants) : 'rouge';
+    list.push({...c, req, line: pick(c.lines).replace('{r}', rname(S,req))});
+  }
+  return list;
+}
+function priceOf(S, c, rid, q, match){
+  let pay = match ? (c.pay||1) : 0.9;
+  if(c.premium && match) pay = q===2 ? c.premium : 1.0;
+  if(c.haggle) pay = 0.5;
+  return Math.round(RECIPES[rid].base * QM[q] * pay * priceMult(S, rid));
+}
+function sellTo(S, c, rid){
+  const match = rid===c.req;
+  if(!match && !c.haggle && !c.meet && R()>0.55){
+    return {ok:false, text:`${c.n}看了看${rname(S,rid)}，摇摇头：“不是我要的。”`};
+  }
+  const q=takeBest(S, rid); if(q<0) return {ok:false, text:'货架上没有了。'};
+  let price=priceOf(S,c,rid,q,match), n=1, rep=0;
+  if(match && !c.haggle){ rep = 2 + (S.up.censer?1:0) + (q===2?1:0); if(c.premium && q<2) rep=1; }
+  if(c.kind) rep+=1;
+  if(c.haggle) rep=1;
+  if(c.buys===2 && match && stock(S,rid)>0){ const q2=takeBest(S,rid); price+=priceOf(S,c,rid,q2,match); n=2; }
+  S.money+=price; addRep(S,rep); S.flags.sold=true; S.stat.sold+=n; S.stat.earned+=price;
+  if(c.meet==='chi') meetChi(S);
+  return {ok:true, n, price, rep, match, q};
+}
+function refuse(S, c){
+  if(c.meet==='chi'){ meetChi(S); return '他看了看空空的柜台：“那我明日再来。”'; }
+  if(c.haggle){ addRep(S,-1); return '舅母撇撇嘴，在门口嚷了半条街。（名声 -1）'; }
+  return `${c.n}空手走了。`;
+}
+function meetChi(S){
+  if(S.met.chi) return;
+  S.met.chi=true; S.aff.chi=10;
+  log(S,'认识了桥头卖画的江迟。');
+  EVQ.push({title:'江迟', seal:'迟', text:`<p>那人叫江迟，在桥头卖画，一幅也没卖出去过。</p><p>临走前他看了眼你那块没写字的匾：“这块匾，我给你写，不要钱。就当谢你这盒胭脂。”</p>`,
+    opts:[{t:'记下了', s:'集市里可以添置「新招牌」了'}]});
+}
+function openShop(S){ const list=makeCustomers(S); useSlot(S); return list; }
+
+/* —— 行动：拜访 —— */
+function visit(S, pid, giftRid){
+  let gain=8, gift='';
+  if(giftRid){ takeBest(S,giftRid); gain = giftRid===PEOPLE[pid].likes ? 18 : 12; gift=rname(S,giftRid); }
+  addAff(S,pid,gain); S.visited[pid]=true; useSlot(S);
+  const a=S.aff[pid], tier=a>=60?2:a>=30?1:0;
+  log(S, `去见了${PEOPLE[pid].n}${gift?`，送了一盒${gift}`:''}。`);
+  return {gain, line: fmtName(S, pick(PEOPLE[pid].talk[tier]))};
+}
+
+/* —— 集市（不占时辰） —— */
+function buyFlower(S, f){ if(S.stall.flowers<=0||S.money<STALL_PRICE) return false; S.money-=STALL_PRICE; S.stall.flowers--; S.flowers[f]=(S.flowers[f]||0)+1; return true; }
+function buyPearl(S){ if(!S.flags.pearlSource||S.stall.pearl<=0||S.money<PEARL_PRICE) return false; S.money-=PEARL_PRICE; S.stall.pearl--; S.pearl++; return true; }
+function upBlock(S, k){ const u=UPGRADES[k]; if(S.up[k]) return '已添置'; if(u.req && !u.req(S)) return u.lock; if(S.money<u.cost) return `还差 ${u.cost-S.money} 文`; return ''; }
+function buyUp(S, k){ if(upBlock(S,k)) return false; S.money-=UPGRADES[k].cost; S.up[k]=true; log(S,`添置了${UPGRADES[k].n}。`); return true; }
+
+/* —— 人物剧情 —— */
+const STORIES = {
+  zhi:[
+    S=>({title:'白芷 · 休书', seal:'芷', text:`<p>白芷来送草药，顺手翻了翻你娘的方子。翻到第三页，她停住了：“这页是照药方的格式写的，难怪你看不懂。”</p><p>她念给你听：白花研末，掺米粉，过绢筛三遍……</p><p>你问她怎么懂这个。她笑：“我嫁过人。夫家开药铺，我替他们抓了五年药。后来他们说我三年无所出，给了我一纸休书。”</p><p>她把方子还给你：“我回娘家那天，把药柜的钥匙也带走了。那本来就是我的嫁妆。”</p>`,
+      opts:[{t:'把第三页抄下来', s:'学会香粉 · 以后采花多得一枝', fn:()=>unlockRecipe(S,'powder')}]}),
+    S=>({title:'白芷 · 流言', seal:'芷', text:`<p>舅母在街口跟人说：被休的女人晦气，进了谁家的门，谁家就倒霉。说完，朝拾芳斋努了努嘴。</p><p>那天下午，有两个客人走到门口，又转身走了。</p><p>白芷站在柜台边，把药篓往身后藏了藏：“我以后少来。”</p>`,
+      opts:[
+        {t:'当着街坊的面，请她进门喝茶', s:'名声 -3 · 白芷好感 +12', fn:()=>{ addRep(S,-3); addAff(S,'zhi',12); S.flags.zhiStand=true; log(S,'当着整条街，请白芷进门喝了茶。'); }},
+        {t:'先避避风头', s:'白芷好感 -10', fn:()=>{ addAff(S,'zhi',-10); }},
+      ]}),
+    S=>({title:'白芷 · 后间', seal:'芷', text:`<p>白芷说，镇上的女人看病，要隔着帘子，隔着丈夫，有些话到死都说不出口。</p><p>她想开一间只给女人看病的小医馆。可没人肯把屋子租给一个被休的女人。</p><p>你想起铺子后头那间堆杂物的屋子。</p>`,
+      opts:[
+        {t:'把后间腾给她', s:'每次开张多一位客人 · 影响结局', fn:()=>{ S.flags.zhiRoom=true; addAff(S,'zhi',8); log(S,'把铺子后间腾给了白芷。'); }},
+        {t:'铺子太小，再想想', s:'无变化'},
+      ]}),
+  ],
+  chi:[
+    S=>({title:'江迟 · 无面', seal:'迟', text:`<p>你去桥头看他的画。画的都是女子：浣纱的、晾衣的、倚门的，身段都好，却一个也没画脸。</p><p>“画人要画眼睛。”他把画卷起来，“可我很久不敢看人的眼睛了。”</p>`,
+      opts:[{t:'“那就先画我的铺子。”', s:'江迟好感 +5', fn:()=>addAff(S,'chi',5)}]}),
+    S=>({title:'江迟 · 砚台', seal:'迟', text:`<p>他喝了点酒，才肯说。他原是京城画院的画师。有位贵人让他画选秀的画像，私下吩咐：“把那个姓林的姑娘画丑些。她挡了我家女儿的路。”</p><p>“我没画。”他说，“砸了画院的砚台，连夜出的京城。”</p><p>他看着自己的手：“那姑娘大概还是没选上。我救不了她，只是不肯害她。”</p><p>第二天，他送来一只漆盒，盒盖上画着一枝梅。</p>`,
+      opts:[
+        {t:'“你没救她，可你没害她。”', s:'江迟好感 +8 · 集市可添置描梅漆盒', fn:()=>addAff(S,'chi',8)},
+        {t:'给他添一杯酒', s:'江迟好感 +5 · 集市可添置描梅漆盒', fn:()=>addAff(S,'chi',5)},
+      ]}),
+    S=>({title:'江迟 · 画眼睛', seal:'迟', text:`<p>江迟问，能不能给你画一幅像。</p><p>“这回，”他说，“我想画眼睛。”</p>`,
+      opts:[
+        {t:'“好。画我站在柜台后面的样子。”', s:'江迟好感 +10 · 影响结局', fn:()=>{ S.flags.chiPortrait=true; addAff(S,'chi',10); }},
+        {t:'“等过了年关再说。”', s:'江迟好感 -5', fn:()=>addAff(S,'chi',-5)},
+      ]}),
+  ],
+  zhao:[
+    S=>({title:'萧照 · 红绳', seal:'照', text:`<p>萧照手腕上一直系着根褪了色的红绳。他说是他娘的。他娘是船娘，一个人撑一条船，把他养大。</p><p>“她说，女人撑船比男人稳，”他笑，“因为她们不敢翻。”</p><p>他答应以后每趟都给你捎扬州的珍珠粉。</p>`,
+      opts:[{t:'“那就先捎两斤。”', s:'集市里可以买珍珠粉了', fn:()=>{ S.flags.pearlSource=true; checkPages(S); }}]}),
+    S=>({title:'萧照 · 钱庄', seal:'照', text:`<p>你去钱庄问账，看见萧照从后堂出来，账房先生叫他“少东家”。</p><p>他在桥上追上你：“通源钱庄是我爹的。我不爱他那套，才去撑船。”</p><p>他顿了顿：“你舅舅来过，想把你的债契买过去。买过去，到期你还不上，铺子就是他的。我让我爹别卖。”</p>`,
+      opts:[
+        {t:'“谢谢你。”', s:'萧照好感 +10', fn:()=>addAff(S,'zhao',10)},
+        {t:'“这是我的债。以后别替我做主。”', s:'萧照好感 +6', fn:()=>{ addAff(S,'zhao',6); S.flags.zhaoRespect=true; EVQ.unshift({title:'萧照', seal:'照', text:'<p>他愣了一下，然后笑了：“行，听你的。”</p>', opts:[{t:'记下了'}]}); }},
+      ]}),
+    S=>({title:'萧照 · 扬州', seal:'照', text:`<p>萧照说，开春他要跑一条长线，下扬州。</p><p>“扬州的姑娘还没用过拾芳斋的胭脂。”他看着你，“你要不要，把铺子开到扬州去？我的船，先给你装货。”</p>`,
+      opts:[
+        {t:'“先把年关过了。”', s:'萧照好感 +6 · 影响结局', fn:()=>{ S.flags.zhaoAsk=true; addAff(S,'zhao',6); }},
+        {t:'“我离不开青溪。”', s:'萧照好感 -5', fn:()=>addAff(S,'zhao',-5)},
+      ]}),
+  ],
+};
+function nextStory(S){
+  for(const p of ['zhi','chi','zhao']){
+    const k=S.story[p];
+    if(S.met[p] && k<3 && S.aff[p]>=STORY_AT[k]){ S.story[p]++; return STORIES[p][k](S); }
+  }
+  return null;
+}
+
+/* —— 夜里 —— */
+const NIGHT = [
+  {w:3, ok:S=>true, ev:S=>{ S.flags.rain=true; return '夜里下起了雨，打在瓦上沙沙地响。明早的花，要被雨打掉一些了。'; }},
+  {w:2, ok:S=>totalGoods(S)>0, ev:S=>{ const r=pick(inStock(S)); takeBest(S,r); return `一只花猫从后窗钻进来，碰翻了一盒${rname(S,r)}。你把它抱出去，它回头冲你叫了一声。`; }},
+  {w:2, ok:S=>true, ev:S=>{ addRep(S,1); return '隔壁的王阿婆端来一碗酒酿圆子：“趁热。”第二天，她逢人就夸拾芳斋的姑娘能干。（名声 +1）'; }},
+  {w:2, ok:S=>S.stat.sold>=3, ev:S=>{ addRep(S,2); return '白天买过胭脂的姑娘托人送来一包桂花糖，纸包上写着两个字：好看。（名声 +2）'; }},
+  {w:2, ok:S=>true, ev:S=>{ S.flags.dream=true; return '你梦见娘站在灶台边调胭脂，袖子挽到手肘。她没回头，只说：“火候到了，要等。”醒来时，手心是热的。（下一次调制至少是佳品）'; }},
+  {w:1.5, ok:S=>S.day>=4, ev:S=>{ addRep(S,-1); return '舅母在街口跟人嚼舌根：“一个丫头片子开铺子，能卖出什么好东西？”（名声 -1）'; }},
+  {w:1, ok:S=>S.money>=150, ev:S=>{ const k=ri(15,35); S.money-=k; return `半夜有响动。你点灯去看，后门开着，钱匣里少了 ${k} 文。`; }},
+];
+function moonEvent(S){
+  const ps=['zhi','chi','zhao'].filter(p=>S.met[p]&&S.aff[p]>=40).sort((a,b)=>S.aff[b]-S.aff[a]);
+  if(!ps.length) return {title:'中秋', seal:'月', text:'<p>中秋。你一个人在铺子门口坐着，给娘摆了一块月饼。</p><p>月亮很圆，圆得像一盒刚压好的香粉。</p>', opts:[{t:'记下了'}]};
+  const p=ps[0]; addAff(S,p,8);
+  const T={
+    zhi:'<p>中秋夜，白芷提了一壶桂花酒来。两个人坐在后门的台阶上，她说她娘也爱喝这个。</p><p>“我娘说，女人这辈子，总得有一个能一起喝酒的人。”她碰了碰你的杯子，“不是丈夫那种。”</p>',
+    chi:'<p>中秋夜，江迟在桥头摆了张小桌，一碟月饼，一盏灯。</p><p>他没画月亮，画的是月亮底下你提灯走过来的样子。“月亮谁都画过，”他说，“你没人画过。”</p>',
+    zhao:'<p>中秋夜，萧照把船撑到溪心，熄了灯。水里一个月亮，天上一个月亮。</p><p>“我娘说，月亮落在水里的时候，许的愿最灵。”你问他许了什么。他笑：“许了条能装胭脂的船。”</p>',
+  };
+  return {title:`中秋 · ${PEOPLE[p].n}`, seal:'月', text:T[p]+`<p class="note">${PEOPLE[p].n}好感 +8</p>`, opts:[{t:'记下了'}]};
+}
+function debtEvent(S, i){
+  const due=DEBTS[i];
+  const lines=[
+    '钱庄的账房先生踩着暮色来了。你把铜钱一串串摆上柜台。“春季，二百文，收讫。”门外，舅舅的脸一闪就不见了。',
+    '账房先生来收第二笔。数钱的时候，他看了你好几眼：“丫头，你娘当年也是这么还的。”夏季，五百文，收讫。',
+    '第三笔。账房先生在柜台前多坐了一会儿，走的时候买了一盒香粉，说是给他闺女。“秋季，一千二百文，收讫。”',
+  ];
+  const pay=()=>{ S.money-=due; S.paid[i]=true; log(S,`还了钱庄 ${due} 文。`); HOOKS.sfx('coin'); if(i===3) finale(S); };
+  if(S.money>=due){
+    if(i<3) return {title:`${SEASONS[i].n}末 · 还债`, seal:'债', text:`<p>${lines[i]}</p>`, opts:[{t:`如数奉上 ${due} 文`, s:`还完剩 ${S.money-due} 文`, fn:pay}]};
+    return {title:'年关', seal:'债', text:'<p>年关。钱庄的人来了，舅舅跟在后头，还领着个刻招牌的匠人。</p>', opts:[{t:`把最后 ${due} 文推过柜台`, fn:pay}]};
+  }
+  const short=due-S.money;
+  if(!S.flags.hairpin && short<=150){
+    return {title:'还债', seal:'债', text:`<p>账房先生来了。你翻遍了钱匣，还差 <b>${short}</b> 文。</p><p>妆奁最底下，压着娘留下的一支银簪。</p>`,
+      opts:[{t:'当掉银簪，补上', s:'+150 文，只有这一次', fn:()=>{ S.flags.hairpin=true; S.money+=150; log(S,'当掉了娘的银簪。'); pay(); }},
+            {t:'……', s:'交不出钱', fn:()=>badEnd(S)}]};
+  }
+  return {title:'还债', seal:'债', text:`<p>账房先生来了。你翻遍了钱匣，还差 <b>${short}</b> 文。</p>`, opts:[{t:'……', fn:()=>badEnd(S)}]};
+}
+function epilogue(S){
+  const a = S.rep>=70 ? '开春，知县夫人亲手题了一块匾：青溪第一铺。'
+          : S.rep>=40 ? '拾芳斋在青溪镇站稳了脚跟。来买胭脂的姑娘，从街头排到桥头。'
+          : '铺子保住了。日子还长。';
+  const b = S.recipes.includes('mine') ? `你在方子最后一页写下三个字：${S.mine}。` : '方子最后一页还空着。你不急。';
+  return `<p class="note">${a}${b}</p>`;
+}
+function finale(S){
+  const endOpts=[];
+  if(S.story.zhi>=3) endOpts.push({t:'和白芷一起守岁', s:`结局 · ${ENDINGS.zhi.n}`, fn:()=>ending(S,'zhi')});
+  if(S.story.chi>=3) endOpts.push({t:'和江迟一起守岁', s:`结局 · ${ENDINGS.chi.n}`, fn:()=>ending(S,'chi')});
+  if(S.story.zhao>=3) endOpts.push({t:'和萧照一起守岁', s:`结局 · ${ENDINGS.zhao.n}`, fn:()=>ending(S,'zhao')});
+  endOpts.push({t:'一个人守着铺子', s:`结局 · ${ENDINGS.alone.n}`, fn:()=>ending(S,'alone')});
+  EVQ.unshift(
+    {title:'年关 · 收讫', seal:'债', text:'<p>账房先生数了很久，抬起头：“四千文，一文不差。”</p><p>他当着舅舅的面，把债契撕成两半。舅舅的脸红了又白，冲匠人一摆手：“走。”</p><p>走到门口，他回头看了一眼你的招牌。</p><p>那是你的招牌。</p>', opts:[{t:'送客'}]},
+    {title:'除夕', seal:'岁', text:'<p>除夕夜，街上的鞭炮一阵近一阵远。</p><p>你想和谁一起守岁？</p>', opts:endOpts}
+  );
+}
+function ending(S, key){
+  S.ended=key; HOOKS.unlock(key);
+  const T={
+    zhi:`<p>除夕夜，白芷在后间包饺子，你在前头算账。算盘打到最后一珠，你喊她：“今年的账，平了。”</p><p>她探出头：“那明年呢？”</p>${S.flags.zhiRoom?'<p>开春以后，后间挂上了一块小木牌，只写了一个字：芷。镇上的女人买完胭脂，会掀帘子进去坐一坐。青溪镇的人后来都说，拾芳斋有两个掌柜。</p>':'<p>开春以后，你们把后间收拾了出来。白芷说，先开个小窗口，卖点草药也行。青溪镇的人后来都说，拾芳斋有两个掌柜。</p>'}`,
+    chi:`<p>除夕夜，江迟把画在你面前展开。</p><p>画里的你站在柜台后头，手里拿的不是团扇，是一杆秤。他把你画进了铺子里，没有画进闺房里。</p><p>“眼睛画好了。”他说，“和我想的一样，是不肯低头的那种。”</p><p>开春以后，拾芳斋的每一只漆盒上，都多了一枝梅。</p>`,
+    zhao:`<p>开春，渡口停着一条新漆的船，船头插着拾芳斋的小旗。萧照撑篙，你坐在一箱箱胭脂中间。</p><p>“这是你的铺子，”他说，“我只是撑船的。”</p><p>船过了三道湾，青溪镇看不见了。你没有跟着谁走。你是带着铺子一起走的。</p>`,
+    alone:`<p>除夕夜，你一个人守着铺子。你给娘上了一炷香，把方子摊在牌位前，一页一页翻给她看。</p><p>“娘，你没写完的，${S.recipes.includes('mine')?'我写完了':'我会写完'}。”</p><p>灯花“啪”地爆了一下。</p>`,
+  };
+  EVQ.unshift({title:`结局 · ${ENDINGS[key].n}`, seal:'终', text:T[key]+epilogue(S), opts:[{t:'再开一次铺子', fn:()=>HOOKS.restart()}]});
+}
+function badEnd(S){
+  S.ended='bad'; HOOKS.unlock('bad');
+  const w=['雨','风','秋风','雪'][seasonIdx(S)];
+  EVQ.unshift({title:`结局 · ${ENDINGS.bad.n}`, seal:'终',
+    text:`<p>钱庄的人来了，舅舅跟在后头。拾芳斋的匾被摘下来，换上了“周记”。</p><p>你抱着半本方子，走进${w}里。</p><p>可是每一页，你都背下来了。</p>`,
+    opts:[{t:'回到本季第一日', s:'从这一季重新来过', fn:()=>HOOKS.restoreCheckpoint()},{t:'从头再来', fn:()=>HOOKS.restart()}]});
+}
+
+/* —— 打烊：夜里结算，再到第二天早上 —— */
+function endDay(S){
+  S.money=Math.max(0, S.money-UPKEEP);
+  const d=S.day, evs=[];
+  const st=nextStory(S); if(st) evs.push(st);
+  if(d===4) evs.push({title:'舅舅', seal:'舅', text:'<p>舅舅来了，在铺子里转了一圈，用指甲刮了刮柜台上的灰。</p><p>“丫头，四千文，一年。”他伸出四根手指，“你一天才挣几个钱？趁早把铺子给我，我还能给你说门亲事。”</p><p>你给他倒了杯茶，没接话。他走后，那杯茶一口没动。</p>', opts:[{t:'送客'}]});
+  if(d===5 && !S.met.zhao){
+    S.met.zhao=true; S.aff.zhao=10; log(S,'认识了渡口撑船的萧照。');
+    evs.push({title:'夜半敲门', seal:'照', text:'<p>天黑透了，有人敲门。一个晒得黝黑的船家扛着只木箱：“扬州来的珍珠粉，周记香铺的。”</p><p>你说这里是拾芳斋。他抬头看了看没写字的匾，又低头看了看货单，笑出一口白牙：“对不住。你们这镇上的铺子，门脸都长一个样。”</p><p>他叫萧照，在青溪渡口撑船，一个月跑两趟扬州。走之前他回头：“要捎什么，跟我说。”</p>', opts:[{t:'记下了', s:'认识了萧照，可以去拜访他'}]});
+  }
+  if(d===17) evs.push(qixiEvent(S));
+  if(d===20) evs.push(moonEvent(S));
+  if(d===23) evs.push({title:'舅舅', seal:'舅', text:'<p>舅舅又来了。这回没进门，站在门槛外头：</p><p>“听说你生意不错。年关那天，我带人来。看你还不还得上。”</p>', opts:[{t:'关门'}]});
+  if(!evs.length && d%7!==0 && R()<0.4){
+    const pool=NIGHT.filter(e=>e.ok(S)); const e=pickW(pool, pool.map(x=>x.w));
+    evs.push({title:'夜里', seal:'夜', text:`<p>${e.ev(S)}</p>`, opts:[{t:'睡了'}]});
+  }
+  if(d%7===0) evs.push(debtEvent(S, d/7-1));
+  EVQ.push(...evs, {run:()=>morning(S)});
+}
+function morning(S){
+  if(S.ended) return;
+  S.day++; S.slot=0; S.visited={}; S.stall={flowers:4, pearl:2};
+  const d=S.day, se=SEASONS[seasonIdx(S)];
+  if((d-1)%7===0){ HOOKS.checkpoint(); if(se.intro) EVQ.push({title:`${se.n} · 第1日`, seal:se.n, text:`<p>${se.intro}</p><p class="note">本季要还钱庄 <b>${DEBTS[seasonIdx(S)]}</b> 文。</p>`, opts:[{t:'开门'}]}); }
+  if(d===6) EVQ.push({title:'花朝节', seal:'花', text:'<p>今日花朝。满街簪花的姑娘，游人比平日多一倍。</p><p class="note">今天开张，客人会多两位。</p>', opts:[{t:'开门'}]});
+  if(d===12) EVQ.push({title:'端午', seal:'午', text:'<p>端午。家家门上插着艾草，姑娘们要香粉、花露驱秽避邪。</p><p class="note">今天香粉、花露卖价 +30%。</p>', opts:[{t:'开门'}]});
+  if(d===17) EVQ.push({title:'七夕', seal:'巧', text:'<p>七夕。今晚绣坊办乞巧会，各家铺子都可以送一样手艺去比。</p><p class="note">打烊前，货架上留一盒最好的货。</p>', opts:[{t:'开门'}]});
+  if(d===25) EVQ.push({title:'冬至', seal:'冬', text:'<p>冬至。北风干得割人，姑娘们的嘴唇都裂了口子。</p><p class="note">今天口脂、雪肌膏卖价 +30%。</p>', opts:[{t:'开门'}]});
+  checkPages(S);
+}
+function qixiEvent(S){
+  const opts=inStock(S).map(r=>({t:`带一盒${rname(S,r)}去`, s:QN[bestQ(S,r)], fn:()=>qixi(S,r)}));
+  opts.push({t:'今年不去了', fn:()=>{ S.flags.qixi='skip'; }});
+  return {title:'七夕 · 乞巧会', seal:'巧', text:'<p>夜里，绣坊门口挂满了灯。各家铺子都送了手艺来比，评个头名。</p><p>舅母也在评判席上坐着。</p>', opts};
+}
+function qixi(S, rid){
+  const q=takeBest(S,rid);
+  const score=q*30 + RECIPES[rid].page*8 + S.rep*0.3 + ri(0,15);
+  let t, prize;
+  if(score>=80){ t='头名'; addRep(S,12); S.money+=150; prize='名声 +12，赏钱 150 文'; }
+  else if(score>=55){ t='第二'; addRep(S,6); S.money+=60; prize='名声 +6，赏钱 60 文'; }
+  else { t='没评上'; prize='下回再来'; }
+  S.flags.qixi=t; log(S, `七夕乞巧会：${t}。`);
+  const txt = t==='头名' ? `<p>评判们传看着你那盒${rname(S,rid)}，一个接一个点头。舅母憋了半天，也只说出一句：“颜色……还行。”</p><p>拾芳斋，<b>头名</b>。</p>`
+            : t==='第二' ? `<p>你那盒${rname(S,rid)}得了<b>第二</b>。头名是扬州来的一家老铺。散场时，那家的掌柜特意过来看了看你的盒子。</p>`
+            : `<p>你那盒${rname(S,rid)}没评上。舅母笑得很响。</p><p>你把盒子收回袖子里。明年。</p>`;
+  EVQ.unshift({title:`乞巧会 · ${t}`, seal:'巧', text:txt+`<p class="note">${prize}</p>`, opts:[{t:'回铺子'}]});
+}
+function currentQuest(S){ return QUESTS.find(q=>!q.done(S)) || null; }
+function debtInfo(S){
+  const i=S.paid.findIndex(p=>!p); if(i<0) return null;
+  const dueDay=(i+1)*7;
+  return {i, due:DEBTS[i], left:dueDay-S.day, season:SEASONS[i].n};
+}
+function migrate(data){
+  const def=newState(data.name);
+  const fill=(d,f)=>{ for(const k in f){ if(d[k]===undefined) d[k]=JSON.parse(JSON.stringify(f[k])); else if(f[k]&&typeof f[k]==='object'&&!Array.isArray(f[k])&&typeof d[k]==='object') fill(d[k],f[k]); } };
+  fill(data, def); return data;
+}
+/*MODEL-END*/
+
+/* ============ 界面 ============ */
+const $ = s => document.querySelector(s);
+const KEY='banben_yanzhi_v1', GKEY='banben_yanzhi_gallery', CPKEY='banben_yanzhi_cp';
+let S=null, CP=null;
+const store={
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} },
+};
+function save(){ if(S) store.set(KEY, JSON.stringify(S)); }
+function gallery(){ try{ return JSON.parse(store.get(GKEY)||'{}'); }catch(e){ return {}; } }
+HOOKS.unlock = k => { const g=gallery(); g[k]=true; store.set(GKEY, JSON.stringify(g)); };
+HOOKS.checkpoint = () => { CP=JSON.stringify(S); store.set(CPKEY, CP); };
+HOOKS.restoreCheckpoint = () => {
+  const t=CP||store.get(CPKEY); if(!t){ HOOKS.restart(); return; }
+  S=migrate(JSON.parse(t)); S.ended=null; EVQ.length=0; save(); render(); toast(`回到了${SEASONS[seasonIdx(S)].n}季第一日`);
+};
+HOOKS.restart = () => { EVQ.length=0; store.del(KEY); S=null; showCover(); };
+HOOKS.sfx = n => Music.sfx(n);
+
+/* —— 花笺 —— */
+let sheetCancel=null;
+function sheet({title, seal, text, opts, input, cancel, after}){
+  const el=$('#sheet');
+  el.innerHTML='';
+  if(title){ const h=document.createElement('div'); h.className='sh-head'; h.innerHTML=(seal?`<span class="sh-seal">${seal}</span>`:'')+`<div class="sh-title">${title}</div>`; el.appendChild(h); }
+  if(text){ const t=document.createElement('div'); t.className='sh-text'; t.innerHTML=text; el.appendChild(t); }
+  let inp=null;
+  if(input){ inp=document.createElement('input'); inp.className='sh-input'; inp.id='sheet-input'; inp.maxLength=6; inp.placeholder=input.ph; inp.value=input.def||''; el.appendChild(inp); }
+  const box=document.createElement('div'); box.className='sh-opts';
+  (opts&&opts.length?opts:[{t:'知道了'}]).forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'+(o.hl?' hl':''); b.disabled=!!o.disabled;
+    b.innerHTML=`<span>${o.t}</span>${o.s?`<small>${o.s}</small>`:''}`;
+    b.onclick=()=>{ closeSheet(); Music.sfx('page'); if(o.fn) o.fn(inp?inp.value:undefined); if(after) after(); };
+    box.appendChild(b);
+  });
+  el.appendChild(box);
+  sheetCancel=cancel||null;
+  $('#mask').hidden=false; el.scrollTop=0;
+  const first=el.querySelector('.opt:not(:disabled)'); if(first) setTimeout(()=>first.focus({preventScroll:true}),30);
+}
+function closeSheet(){ $('#mask').hidden=true; sheetCancel=null; }
+$('#mask').addEventListener('click', e=>{ if(e.target.id==='mask' && sheetCancel){ const f=sheetCancel; closeSheet(); f(); } });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('#mask').hidden && sheetCancel){ const f=sheetCancel; closeSheet(); f(); } });
+
+let qRunning=false;
+function runQ(){
+  if(qRunning) return;
+  while(EVQ.length && EVQ[0].run){ EVQ.shift().run(); }
+  if(!EVQ.length){ save(); render(); return; }
+  qRunning=true;
+  const ev=EVQ.shift();
+  sheet({...ev, after:()=>{ qRunning=false; save(); render(); runQ(); }});
+}
+let toastT=0;
+function toast(t){ const el=$('#toast'); el.textContent=t; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true, 2200); }
+
+/* —— 渲染 —— */
+function render(){
+  if(!S) return;
+  const se=SEASONS[seasonIdx(S)];
+  $('#t-name').textContent=`掌柜 ${S.name}`;
+  $('#t-date').textContent=`${se.n} · 第${dayIn(S)}日 · ${S.slot<3?SLOTS[S.slot]:'入夜'}`;
+  $('#t-slots').innerHTML=[0,1,2].map(i=>`<i class="${i<S.slot?'used':''}"></i>`).join('');
+  $('#t-money').textContent=S.money; $('#t-rep').textContent=S.rep;
+  const q=currentQuest(S); $('#g-quest').textContent=q?q.t:'自由经营，等年关';
+  const di=debtInfo(S);
+  $('#g-debt').innerHTML = di ? `${di.season}末还 <b style="color:var(--rouge)">${di.due}</b> 文 <span class="dim">· ${di.left>0?`还剩 ${di.left} 日`:'今晚就收'} · ${S.money>=di.due?'钱够了':'还差 '+(di.due-S.money)+' 文'}</span>` : '债已还清';
+  $('#scene-cap').textContent=se.cap;
+  const acts=$('#acts');
+  if(S.ended){ acts.innerHTML=`<button class="act close" id="a-end"><b>再开一次铺子</b><small>这一年已经过完了</small></button>`; }
+  else if(S.slot>=3){
+    acts.innerHTML=`<button class="act close" data-a="close"><b>打烊 · 入夜</b><small>今日的时辰用完了 · 日用 ${UPKEEP} 文</small></button>`;
+  } else {
+    const people=['zhi','chi','zhao'].filter(p=>S.met[p]);
+    const canVisit=people.some(p=>!S.visited[p]);
+    acts.innerHTML=[
+      ['gather','采花', S.slot===0?'清晨带露，多采一枝':'去后山采些时令花'],
+      ['craft','调制', `照方子做货 · 手艺 ${level(S)} 成`],
+      ['shop','开张', `约 ${customerCount(S)} 位客人${S.slot===2?' · 黄昏人最多':''}`],
+      ['visit','拜访', people.length?(canVisit?'去见认识的人':'今天都见过了'):'还没有相熟的人'],
+    ].map(([a,n,s])=>`<button class="act" data-a="${a}" ${a==='visit'&&!canVisit?'disabled':''}><b>${n}</b><small>${s}</small></button>`).join('')
+    + `<button class="act close" data-a="close" style="background:transparent;border-color:var(--ink-3)"><b style="font-size:17px">提早打烊</b><small style="color:var(--on-ink-dim)">还剩 ${slotsLeft(S)} 个时辰</small></button>`;
+  }
+  const fl=Object.keys(S.flowers).filter(f=>S.flowers[f]>0);
+  $('#c-flowers').innerHTML = fl.length ? fl.map(f=>`<span class="chip"><i class="dot" style="background:${FLOWERS[f].color}"></i>${f} ${S.flowers[f]}<span class="top3">${FLOWERS[f].tags.join('')}</span></span>`).join('')
+    + (S.pearl?`<span class="chip"><i class="dot" style="background:#f4f1ea"></i>珍珠粉 ${S.pearl}</span>`:'') : '<span class="none">篮子空着。清晨去后山采花。</span>';
+  const gs=inStock(S);
+  $('#c-goods').innerHTML = gs.length ? gs.map(r=>{ const g=S.goods[r]; return `<span class="chip"><i class="dot" style="background:${RECIPES[r].color}"></i>${rname(S,r)} ${stock(S,r)}${g[2]?`<span class="top3">上品${g[2]}</span>`:g[1]?`<span class="top3">佳${g[1]}</span>`:''}</span>`; }).join('') : '<span class="none">货架空着。去调制吧。</span>';
+  $('#log').innerHTML=S.log.slice(0,5).map(t=>`<p>${t}</p>`).join('');
+  Scene.mark();
+}
+
+/* —— 行动 —— */
+function act(a){
+  if(!S || S.ended || qRunning) return;
+  if(a==='close'){ endDay(S); Music.sfx('page'); runQ(); return; }
+  if(S.slot>=3) return;
+  if(a==='gather'){ const r=gather(S); toast(`采得 ${Object.entries(r.got).map(([f,k])=>f+'×'+k).join('、')}`); Music.sfx('pluck'); save(); render(); runQ(); return; }
+  if(a==='craft') return craftMenu();
+  if(a==='shop') return shopRun();
+  if(a==='visit') return visitMenu();
+}
+function craftMenu(){
+  const opts=RECIPE_ORDER.filter(r=>S.recipes.includes(r)).map(r=>{
+    const why=craftBlock(S,r);
+    return {t:`${rname(S,r)}`, s: why ? `${needText(r)} · ${why}` : `${needText(r)} → ${batchSize(S)} 盒 · 基价 ${RECIPES[r].base} 文`, disabled:!!why,
+      fn:()=>{ const res=craft(S,r); Music.sfx(res.q===2?'chime':'pluck'); toast(`调出 ${res.n} 盒${rname(S,r)}（${QN[res.q]}）${res.lvUp?` · 手艺 ${res.lv} 成`:''}`); save(); render(); runQ(); }};
+  });
+  opts.push({t:'先不做了', fn:()=>{}});
+  sheet({title:'调制', seal:'谱', text:`<p class="note">手艺 ${level(S)} 成：每批 ${batchSize(S)} 盒，出上品的机会约 ${Math.round((0.04+level(S)*0.05)*100)}%。</p>`, opts, cancel:()=>{}});
+}
+function shopRun(){
+  if(!totalGoods(S)){ sheet({title:'开张', seal:'铺', text:'<p>货架是空的，开了门也没东西卖。</p><p class="note">先去调制一批货。</p>', opts:[{t:'好'}], cancel:()=>{}}); return; }
+  const list=openShop(S);
+  let sold=0, earned=0, rep=0, prev='', prevBad=false, idx=0;
+  const step=()=>{
+    if(idx>=list.length || !totalGoods(S)){
+      const left=list.length-idx;
+      Music.sfx(earned?'coin':'page');
+      sheet({title:'收摊', seal:'铺', text:`${prev?`<p class="prev${prevBad?' bad':''}">${prev}</p>`:''}<p>今日开张，卖出 <b>${sold}</b> 盒，进账 <b>${earned}</b> 文${rep?`，名声 ${rep>0?'+':''}${rep}`:''}。</p>${left>0?`<p class="note">货卖完了，还有 ${left} 位客人空手而归。</p>`:''}`,
+        opts:[{t:'收摊'}], after:()=>{ log(S,`开张：卖出 ${sold} 盒，进账 ${earned} 文。`); save(); render(); runQ(); }});
+      return;
+    }
+    const c=list[idx++];
+    const opts=inStock(S).map(r=>({t:`拿${rname(S,r)}`, hl:r===c.req,
+      s:`${QN[bestQ(S,r)]} · 剩 ${stock(S,r)}${c.haggle?' · 她只肯出半价':r===c.req?' · 正是她要的':''}`,
+      fn:()=>{ const before=S.rep; const res=sellTo(S,c,r);
+        if(res.ok){ sold+=res.n; earned+=res.price; rep+=S.rep-before; prev=`卖出 ${res.n} 盒${rname(S,r)}，得 ${res.price} 文${S.rep-before?`，名声 +${S.rep-before}`:''}。`; prevBad=false; Music.sfx('coin'); }
+        else { prev=res.text; prevBad=true; }
+        step(); }}));
+    opts.push({t:c.haggle?'不卖':'抱歉，今天没有合适的', fn:()=>{ const before=S.rep; prev=refuse(S,c); rep+=S.rep-before; prevBad=true; step(); }});
+    sheet({title:c.n, seal:c.seal, text:`${prev?`<p class="prev${prevBad?' bad':''}">${prev}</p>`:''}<p>${c.meet?c.line:`“${c.line}”`}</p><p class="note">第 ${idx} 位，共 ${list.length} 位</p>`, opts});
+  };
+  save(); render(); step();
+}
+function visitMenu(){
+  const ps=['zhi','chi','zhao'].filter(p=>S.met[p]);
+  const opts=ps.map(p=>({t:`${PEOPLE[p].n} · ${PEOPLE[p].title}`, s:S.visited[p]?'今天见过了':`好感 ${S.aff[p]}${S.story[p]<3?` · 到 ${STORY_AT[S.story[p]]} 有新故事`:' · 故事都听完了'}`, disabled:!!S.visited[p], fn:()=>giftMenu(p)}));
+  opts.push({t:'不去了', fn:()=>{}});
+  sheet({title:'拜访', seal:'访', opts, cancel:()=>{}});
+}
+function giftMenu(p){
+  const P=PEOPLE[p];
+  const opts=[{t:'空手去坐坐', s:'好感 +8', fn:()=>doVisit(p,null)}];
+  inStock(S).forEach(r=>opts.push({t:`带一盒${rname(S,r)}`, s:r===P.likes?'好感 +18 · 正合心意':'好感 +12', hl:r===P.likes, fn:()=>doVisit(p,r)}));
+  opts.push({t:'改天再去', fn:()=>{}});
+  sheet({title:P.n, seal:P.seal, text:`<p class="note">带点什么去？</p>`, opts, cancel:()=>{}});
+}
+function doVisit(p, r){
+  const res=visit(S,p,r); Music.sfx('pluck'); save(); render();
+  sheet({title:PEOPLE[p].n, seal:PEOPLE[p].seal, text:`<p>${res.line}</p><p class="note">好感 +${res.gain}，现在 ${S.aff[p]}</p>`, opts:[{t:'回铺子'}], after:()=>runQ()});
+}
+
+/* —— 面板 —— */
+function panel(k){
+  if(!S || qRunning) return;
+  if(k==='market') return marketPanel();
+  if(k==='book') return bookPanel();
+  if(k==='people') return peoplePanel();
+  if(k==='gallery') return galleryPanel();
+}
+function marketPanel(){
+  if(S.slot>=3 && !S.ended){ sheet({title:'集市', seal:'市', text:'<p>天黑了，集市早收了摊。</p>', opts:[{t:'回去'}], cancel:()=>{}}); return; }
+  const se=SEASONS[seasonIdx(S)];
+  const opts=se.flowers.map(f=>({t:`买一枝${f}（${FLOWERS[f].tags.join('、')}）`, s:`${STALL_PRICE} 文 · 卖花婆婆今天还剩 ${S.stall.flowers} 枝`, disabled:S.stall.flowers<=0||S.money<STALL_PRICE,
+    fn:()=>{ buyFlower(S,f); Music.sfx('coin'); save(); render(); marketPanel(); }}));
+  if(S.flags.pearlSource) opts.push({t:'买一包珍珠粉', s:`${PEARL_PRICE} 文 · 萧照捎来的，今天还剩 ${S.stall.pearl} 包`, disabled:S.stall.pearl<=0||S.money<PEARL_PRICE, fn:()=>{ buyPearl(S); Music.sfx('coin'); save(); render(); marketPanel(); }});
+  const di=debtInfo(S);
+  UP_ORDER.forEach(k=>{ const u=UPGRADES[k], why=upBlock(S,k);
+    const warn=!why && di && S.money-u.cost<di.due ? ' · 买了就不够还本季的债' : '';
+    opts.push({t:`添置 · ${u.n}${S.up[k]?'（已有）':`（${u.cost} 文）`}`, s:(why&&!S.up[k]?`${u.d} · ${why}`:u.d)+warn, hl:!!warn, disabled:!!why,
+      fn:()=>{ buyUp(S,k); Music.sfx('chime'); toast(`添置了${u.n}`); save(); render(); marketPanel(); }}); });
+  opts.push({t:'离开集市', fn:()=>{}});
+  sheet({title:'集市', seal:'市', text:'<p class="note">逛集市不占时辰。卖花婆婆每天只有四枝花。</p>', opts, cancel:()=>{}});
+}
+function bookPanel(){
+  const lv=level(S);
+  const html=RECIPE_ORDER.map(r=>{
+    const R_=RECIPES[r], have=S.recipes.includes(r);
+    const lockWhy={lip:'手艺练到 3 成', powder:'有人认得药方的写法', dew:'手艺练到 6 成', cream:'手艺 7 成，还要一味外地的珍珠粉', mine:'手艺练到 9 成'}[r];
+    return `<div class="page ${have?'':'lock'}"><span class="pn">第${'一二三四五六'[R_.page-1]}页 · ${have?rname(S,r):'？？？'}</span><small>${have?`${R_.how}<br>${needText(r)} · 基价 ${R_.base} 文`:`还看不懂。${lockWhy}。`}</small></div>`;
+  }).join('');
+  sheet({title:'娘的方子', seal:'谱', text:`<p class="note">手艺 ${lv} 成（再调 ${lv>=10?0:3-S.exp%3} 次长一成）。每批 ${batchSize(S)} 盒。</p><div class="card-list">${html}</div>`, opts:[{t:'合上'}], cancel:()=>{}});
+}
+function peoplePanel(){
+  const html=['zhi','chi','zhao'].map(p=>{
+    const P=PEOPLE[p];
+    if(!S.met[p]) return `<div class="pcard"><span class="sh-seal" style="background:var(--paper-line)">？</span><b>还没遇见</b><small>${P.hint}</small></div>`;
+    const k=S.story[p], next=k<3?STORY_AT[k]:100;
+    return `<div class="pcard"><span class="sh-seal">${P.seal}</span><b>${P.n} <small>${P.title}</small></b><small>好感 ${S.aff[p]} · 故事 ${k}/3${k<3?` · 到 ${next} 有新故事`:''} · 最喜欢${RECIPES[P.likes].n}</small><div class="bar"><i style="width:${S.aff[p]}%"></i></div></div>`;
+  }).join('');
+  sheet({title:'人物', seal:'人', text:`<div class="card-list">${html}</div><p class="note">故事听满三段，年关时才能和那个人一起守岁。</p>`, opts:[{t:'合上'}], cancel:()=>{}});
+}
+function galleryPanel(){
+  const g=gallery();
+  const html=ENDING_ORDER.map(k=>`<div class="page ${g[k]?'':'lock'}"><span class="pn">${g[k]?ENDINGS[k].n:'？？？'}</span><small>${g[k]?{zhi:'和白芷一起守岁',chi:'和江迟一起守岁',zhao:'和萧照一起守岁',alone:'一个人守着铺子',bad:'没能守住铺子'}[k]:'尚未见到'}</small></div>`).join('');
+  sheet({title:'结局图鉴', seal:'鉴', text:`<p class="note">已见 ${ENDING_ORDER.filter(k=>g[k]).length} / ${ENDING_ORDER.length}</p><div class="card-list">${html}</div>`, opts:[{t:'合上'}], cancel:()=>{}});
+}
+
+/* —— 画卷：Canvas 画铺子门脸，随季节、时辰、添置变化 —— */
+const Scene={
+  cv:null, ctx:null, w:0, h:0, dpr:1, base:null, key:'', parts:[], raf:0, still:false, last:0, smoke:0,
+  init(){
+    this.cv=$('#cv'); this.ctx=this.cv.getContext('2d');
+    this.still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.base=document.createElement('canvas');
+    addEventListener('resize',()=>{ this.size(); });
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ this.key=''; this.mark(); });
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) this.loop(); });
+  },
+  size(){
+    const r=this.cv.getBoundingClientRect(); if(!r.width) return;
+    this.dpr=Math.min(2, window.devicePixelRatio||1); this.w=r.width; this.h=r.height;
+    for(const c of [this.cv,this.base]){ c.width=Math.round(this.w*this.dpr); c.height=Math.round(this.h*this.dpr); }
+    this.key=''; this.seed(); this.mark();
+  },
+  phase(){ if(!S) return 'day'; return S.slot>=3||S.ended ? 'night' : ['dawn','day','dusk'][S.slot]; },
+  mark(){
+    if(!S||!this.ctx) return;
+    if(!this.w){ if(this.cv.getBoundingClientRect().width) this.size(); return; }
+    const k=[seasonIdx(S),this.phase(),Object.keys(S.up).join(','),Math.min(9,totalGoods(S)),inStock(S).join(','),S.flags.zhiRoom?1:0,this.w].join('|');
+    if(k!==this.key){ this.key=k; this.bake(); if(this.parts.length===0||this.partSeason!==seasonIdx(S)+this.phase()) this.seed(); }
+    if(this.still) this.frame(0); else this.loop();
+  },
+  seed(){
+    if(!S) return;
+    const si=seasonIdx(S), ph=this.phase(); this.partSeason=si+ph; const n=si===3?46:si===1?(ph==='night'||ph==='dusk'?14:0):22;
+    this.parts=[]; for(let i=0;i<n;i++) this.parts.push({x:Math.random()*this.w, y:Math.random()*this.h, s:Math.random(), r:Math.random()*6.28, v:.3+Math.random()*.7});
+  },
+  bake(){
+    const c=this.base.getContext('2d'), w=this.w, h=this.h, si=seasonIdx(S), ph=this.phase();
+    c.setTransform(this.dpr,0,0,this.dpr,0,0); c.clearRect(0,0,w,h);
+    const skies={dawn:['#f2d2c8','#cfe0e2'], day:['#cfe3e6','#eef0e4'], dusk:['#e59a78','#5e5577'], night:['#0f2033','#26395a']};
+    let [s1,s2]=skies[ph]; if(si===3&&ph==='day'){ s1='#dfe6ea'; s2='#f2f3f0'; }
+    let g=c.createLinearGradient(0,0,0,h); g.addColorStop(0,s1); g.addColorStop(1,s2); c.fillStyle=g; c.fillRect(0,0,w,h);
+    if(ph==='night'){ c.fillStyle='#f3ecd2'; c.beginPath(); c.arc(w*.18,h*.22,13,0,7); c.fill(); c.fillStyle='rgba(243,236,210,.12)'; c.beginPath(); c.arc(w*.18,h*.22,26,0,7); c.fill();
+      c.fillStyle='rgba(255,255,255,.7)'; for(let i=0;i<26;i++){ const x=(i*97%w), y=(i*53%(h*.5)); c.fillRect(x,y,1.2,1.2); } }
+    // 远山：两层水墨
+    const hills=[[.52,16,'rgba(60,92,98,.32)',1.3],[.64,12,'rgba(45,76,82,.52)',2.1]];
+    hills.forEach(([b,a,col,sd])=>{ c.fillStyle=ph==='night'?'rgba(20,36,52,.75)':col; c.beginPath(); c.moveTo(0,h);
+      for(let x=0;x<=w;x+=4){ c.lineTo(x, h*b - Math.sin(x*.011+sd)*a - Math.sin(x*.027+sd*2)*a*.6 - Math.max(0,Math.sin(x*.004+sd))*a*.8); }
+      c.lineTo(w,h); c.fill(); });
+    // 溪水与石板路
+    c.fillStyle=ph==='night'?'#1d3340':'#9ebfc0'; c.fillRect(0,h*.8,w*.3,h*.2);
+    c.fillStyle=ph==='night'?'#2a3438':'#b9aea2'; c.fillRect(w*.26,h*.86,w*.74,h*.14);
+    c.strokeStyle='rgba(0,0,0,.12)'; c.lineWidth=1; for(let x=w*.28;x<w;x+=22){ c.beginPath(); c.moveTo(x,h*.86); c.lineTo(x-6,h); c.stroke(); }
+    if(si===3){ c.fillStyle='rgba(255,255,255,.75)'; c.fillRect(w*.26,h*.86,w*.74,3); c.fillRect(0,h*.8,w*.3,2); }
+    // 树
+    this.tree(c,w*.13,h*.86,si,ph);
+    // 铺子
+    this.shop(c,w,h,si,ph);
+  },
+  tree(c,x,y,si,ph){
+    c.strokeStyle=ph==='night'?'#1b1f22':'#3b2f2a'; c.lineCap='round';
+    const br=[[0,0,6,-52,5],[6,-52,-22,-82,3.2],[6,-52,30,-76,3],[2,-30,-26,-44,2.4],[-22,-82,-34,-96,1.6],[30,-76,44,-92,1.5]];
+    br.forEach(([a,b,cx,cy,lw])=>{ c.lineWidth=lw; c.beginPath(); c.moveTo(x+a,y+b); c.quadraticCurveTo(x+(a+cx)/2+6,y+(b+cy)/2,x+cx,y+cy); c.stroke(); });
+    const col=[['#f2a7b8','#f8cdd5'],['#4f8a5c','#6fa66a'],['#e0a63c','#c9792f'],['#c2334a','#f2f0ec']][si];
+    const n=si===3?18:46; let seed=7;
+    const rnd=()=>{ seed=(seed*9301+49297)%233280; return seed/233280; };
+    for(let i=0;i<n;i++){ const t=br[1+Math.floor(rnd()*5)]; const px=x+t[2]+(rnd()-.5)*34, py=y+t[3]+(rnd()-.5)*26;
+      c.fillStyle=col[rnd()<.5?0:1]; c.globalAlpha=ph==='night'?.55:.9; c.beginPath(); c.arc(px,py,si===1?4.2:si===3?2.4:3.2,0,7); c.fill(); }
+    c.globalAlpha=1;
+    if(si===3){ c.fillStyle='rgba(255,255,255,.85)'; [[-22,-82],[30,-76],[6,-52]].forEach(([a,b])=>{ c.fillRect(x+a-6,y+b-2,12,2.5); }); }
+  },
+  shop(c,w,h,si,ph){
+    const x0=w*.34, x1=w*.97, gy=h*.88, top=gy-96, ry=top+6;
+    const night=ph==='night', dusk=ph==='dusk';
+    // 二楼雅间
+    if(S.up.loft){ c.fillStyle='#5b4034'; c.fillRect(x0+(x1-x0)*.3,ry-46,(x1-x0)*.4,30); c.fillStyle=night||dusk?'#f0c27a':'#d9cbb5'; c.fillRect(x0+(x1-x0)*.36,ry-40,(x1-x0)*.28,18);
+      c.strokeStyle='#5b4034'; c.lineWidth=2; for(let i=1;i<4;i++){ const xx=x0+(x1-x0)*(.36+.07*i); c.beginPath(); c.moveTo(xx,ry-40); c.lineTo(xx,ry-22); c.stroke(); }
+      c.fillStyle='#34424a'; c.beginPath(); c.moveTo(x0+(x1-x0)*.24,ry-44); c.lineTo(x0+(x1-x0)*.76,ry-44); c.lineTo(x0+(x1-x0)*.7,ry-56); c.lineTo(x0+(x1-x0)*.3,ry-56); c.fill(); }
+    // 墙与柱
+    c.fillStyle=night?'#3b3330':'#e7ddd0'; c.fillRect(x0,ry+18,x1-x0,gy-ry-18);
+    c.fillStyle=night?'#5a1f25':'#8e2a31'; c.fillRect(x0+4,ry+16,8,gy-ry-16); c.fillRect(x1-12,ry+16,8,gy-ry-16);
+    // 屋檐
+    c.fillStyle=night?'#1f2a30':'#34424a';
+    c.beginPath(); c.moveTo(x0-20,ry+2); c.quadraticCurveTo(x0-2,ry+16,x0+22,ry+14); c.lineTo(x1-22,ry+14); c.quadraticCurveTo(x1+2,ry+16,x1+20,ry+2);
+    c.lineTo(x1-10,ry-20); c.lineTo(x0+10,ry-20); c.closePath(); c.fill();
+    c.strokeStyle='rgba(255,255,255,.1)'; c.lineWidth=1; for(let xx=x0+16;xx<x1-12;xx+=7){ c.beginPath(); c.moveTo(xx,ry-18); c.lineTo(xx,ry+13); c.stroke(); }
+    c.fillStyle=night?'#151d21':'#28343b'; c.fillRect(x0+6,ry-24,x1-x0-12,5);
+    if(si===3){ c.fillStyle='rgba(255,255,255,.9)'; c.beginPath(); c.moveTo(x0-14,ry); c.quadraticCurveTo(x0,ry-6,x0+14,ry-17); c.lineTo(x1-14,ry-17); c.quadraticCurveTo(x1,ry-6,x1+14,ry); c.lineTo(x1-8,ry-21); c.lineTo(x0+8,ry-21); c.fill(); }
+    // 匾
+    const bw=(x1-x0)*.42, bx=(x0+x1)/2-bw/2, by=ry+20;
+    c.fillStyle=S.up.sign?'#2a2224':'#c6ad8d'; c.fillRect(bx,by,bw,22);
+    c.strokeStyle=S.up.sign?'#c49656':'#a38a6c'; c.lineWidth=1.5; c.strokeRect(bx+2,by+2,bw-4,18);
+    if(S.up.sign){ c.fillStyle='#e2c08a'; c.font='16px "Ma Shan Zheng","STKaiti","KaiTi",serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('拾 芳 斋',(x0+x1)/2,by+12); c.fillStyle='#a42e3b'; c.fillRect(bx+bw-12,by+5,6,6); }
+    // 柜台与货架
+    const cy=gy-30;
+    c.fillStyle=night?'#2a2422':'#cbbba6'; c.fillRect(x0+16,ry+48,x1-x0-32,cy-ry-48);
+    c.fillStyle=night?'#3c2b24':'#6e4a38'; c.fillRect(x0+16,cy,x1-x0-32,30); c.fillStyle=night?'#4a352c':'#835a44'; c.fillRect(x0+12,cy-4,x1-x0-24,5);
+    c.fillStyle=night?'#4a3a33':'#9c7a5f'; c.fillRect(x0+22,ry+66,x1-x0-44,3);
+    // 盒子（货）
+    const goods=[]; inStock(S).forEach(r=>{ for(let i=0;i<Math.min(stock(S,r),4);i++) goods.push(RECIPES[r].color); });
+    goods.slice(0,9).forEach((col,i)=>{ const gx=x0+30+i*((x1-x0-60)/9), gy2=cy-9;
+      c.fillStyle=S.up.box?'#2a1a1c':'#7b5a48'; c.beginPath(); c.ellipse(gx+7,gy2+4,8,4,0,0,7); c.fill();
+      c.fillStyle=col; c.beginPath(); c.ellipse(gx+7,gy2+1,7,3.2,0,0,7); c.fill();
+      if(S.up.box){ c.fillStyle='#d5a24f'; c.fillRect(gx+5,gy2,3,1.2); } });
+    // 铜镜
+    if(S.up.mirror){ const mx=x1-44, my=ry+56; c.fillStyle='#8a6a3b'; c.fillRect(mx-1,my+10,2,12); c.fillStyle='#c49656'; c.beginPath(); c.arc(mx,my,10,0,7); c.fill(); c.fillStyle='#ead9b2'; c.beginPath(); c.arc(mx-2,my-2,6.5,0,7); c.fill(); }
+    // 熏香炉
+    if(S.up.censer){ const ex=x0+40, ey=ry+62; c.fillStyle='#6b5a45'; c.fillRect(ex-6,ey-2,12,7); c.fillRect(ex-8,ey-4,16,2.5); this.censerAt=[ex,ey-5]; } else this.censerAt=null;
+    // 白芷的后间门帘
+    if(S.flags.zhiRoom){ c.fillStyle='#3e6f7a'; c.fillRect(x1-30,ry+30,14,cy-ry-30); c.fillStyle='#e9efe9'; c.font='10px "Ma Shan Zheng","STKaiti",serif'; c.textAlign='center'; c.fillText('芷',x1-23,ry+44); }
+    // 灯笼
+    [[x0+18,ry+14],[x1-18,ry+14]].forEach(([lx,ly])=>{ c.strokeStyle='#2b2b2b'; c.lineWidth=1; c.beginPath(); c.moveTo(lx,ly); c.lineTo(lx,ly+6); c.stroke();
+      if(night||dusk){ const gg=c.createRadialGradient(lx,ly+15,2,lx,ly+15,26); gg.addColorStop(0,'rgba(255,190,110,.55)'); gg.addColorStop(1,'rgba(255,190,110,0)'); c.fillStyle=gg; c.beginPath(); c.arc(lx,ly+15,26,0,7); c.fill(); }
+      c.fillStyle=night||dusk?'#e0503f':'#b9333a'; c.beginPath(); c.ellipse(lx,ly+15,7,9,0,0,7); c.fill(); c.fillStyle='#2b2b2b'; c.fillRect(lx-3,ly+5,6,2); c.fillRect(lx-3,ly+23,6,2); });
+    if(night){ c.fillStyle='rgba(10,20,35,.25)'; c.fillRect(0,0,w,h); }
+  },
+  loop(){ if(this.raf||this.still) return; const f=t=>{ this.raf=0; if(document.hidden||$('#game').hidden) return; if(t-this.last>32){ this.last=t; this.frame(t); } this.raf=requestAnimationFrame(f); }; this.raf=requestAnimationFrame(f); },
+  frame(t){
+    const c=this.ctx; if(!c||!this.w) return;
+    c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,this.cv.width,this.cv.height); c.drawImage(this.base,0,0);
+    c.setTransform(this.dpr,0,0,this.dpr,0,0);
+    const si=S?seasonIdx(S):0, ph=this.phase();
+    if(this.censerAt){ const [ex,ey]=this.censerAt; c.strokeStyle='rgba(240,240,240,.45)'; c.lineWidth=1.2; c.beginPath(); for(let i=0;i<18;i++){ const yy=ey-i*1.6, xx=ex+Math.sin(i*.5+t*.002)*3*(i/18); i?c.lineTo(xx,yy):c.moveTo(xx,yy); } c.stroke(); }
+    for(const p of this.parts){
+      if(!this.still){ if(si===0){ p.x+=.35*p.v; p.y+=.5*p.v; p.r+=.03; } else if(si===1){ p.x+=Math.sin(t*.001+p.r)*.3; p.y+=Math.cos(t*.0013+p.r)*.3; } else if(si===2){ p.x+=.5*p.v; p.y+=.7*p.v; p.r+=.05; } else { p.x+=Math.sin(t*.0008+p.r)*.2; p.y+=.45*p.v; }
+        if(p.y>this.h+6){ p.y=-6; p.x=Math.random()*this.w; } if(p.x>this.w+6) p.x=-6; if(p.x<-6) p.x=this.w+6; }
+      if(si===0){ c.fillStyle='rgba(244,170,188,.85)'; c.save(); c.translate(p.x,p.y); c.rotate(p.r); c.beginPath(); c.ellipse(0,0,3,1.6,0,0,7); c.fill(); c.restore(); }
+      else if(si===1){ const a=.4+.4*Math.sin(t*.004+p.r*5); c.fillStyle=`rgba(230,240,150,${a})`; c.beginPath(); c.arc(p.x,p.y,1.6,0,7); c.fill(); }
+      else if(si===2){ c.fillStyle=p.s>.5?'rgba(214,140,50,.85)':'rgba(190,96,40,.8)'; c.save(); c.translate(p.x,p.y); c.rotate(p.r); c.fillRect(-3,-1.5,6,3); c.restore(); }
+      else { c.fillStyle='rgba(255,255,255,.9)'; c.beginPath(); c.arc(p.x,p.y,.8+p.s*1.4,0,7); c.fill(); }
+    }
+  },
+};
+
+/* —— 音乐：Web Audio 现场生成的五声音阶拨弦，四季换调 —— */
+const Music={
+  ctx:null, on:false, timer:0, next:0, beat:0, deg:5, step:0,
+  ensure(){
+    if(this.ctx) return true;
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return false;
+    this.ctx=new AC();
+    this.master=this.ctx.createGain(); this.master.gain.value=.5; this.master.connect(this.ctx.destination);
+    this.bus=this.ctx.createGain(); this.bus.gain.value=.55; this.bus.connect(this.master);
+    const d=this.ctx.createDelay(1); d.delayTime.value=.36; const fb=this.ctx.createGain(); fb.gain.value=.28; const wet=this.ctx.createGain(); wet.gain.value=.32;
+    this.bus.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(this.master);
+    this.fx=this.ctx.createGain(); this.fx.gain.value=.7; this.fx.connect(this.master);
+    return true;
+  },
+  scale(){
+    const si=S?seasonIdx(S):0;
+    const roots=[293.66, 261.63, 329.63, 220.0];     // 春 D宫 · 夏 C徵 · 秋 E商 · 冬 A羽
+    const modes=[[0,2,4,7,9],[0,2,5,7,9],[0,3,5,7,10],[0,3,5,7,10]];
+    const r=roots[si], m=modes[si], out=[];
+    for(let o=-1;o<2;o++) for(const s of m) out.push(r*Math.pow(2,o+s/12));
+    return out;
+  },
+  pluck(f, t, dur, vol, dest){
+    const c=this.ctx, o=c.createOscillator(), o2=c.createOscillator(), g=c.createGain(), lp=c.createBiquadFilter();
+    o.type='triangle'; o.frequency.setValueAtTime(f*1.006,t); o.frequency.exponentialRampToValueAtTime(f,t+.05);
+    o2.type='sine'; o2.frequency.value=f*2.003;
+    lp.type='lowpass'; lp.frequency.setValueAtTime(Math.min(6000,f*7),t); lp.frequency.exponentialRampToValueAtTime(Math.max(300,f*1.5),t+dur);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.006); g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+    const g2=c.createGain(); g2.gain.value=.25;
+    o.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(g); g.connect(dest||this.bus);
+    o.start(t); o2.start(t); o.stop(t+dur+.05); o2.stop(t+dur+.05);
+  },
+  start(){ if(!this.ensure()) return; this.ctx.resume(); if(this.on) return; this.on=true; this.next=this.ctx.currentTime+.15; this.timer=setInterval(()=>this.tick(),90); this.sync(); },
+  stop(){ this.on=false; clearInterval(this.timer); this.sync(); },
+  toggle(){ this.on?this.stop():this.start(); },
+  sync(){ const b=$('#b-music'); if(b) b.setAttribute('aria-pressed', String(this.on)); },
+  tick(){
+    const c=this.ctx; const si=S?seasonIdx(S):0; this.beat=[.46,.42,.5,.58][si];
+    while(this.next < c.currentTime+.35){
+      const sc=this.scale(), t=this.next, pos=this.step%16;
+      if(pos===0){ this.pluck(sc[0]/1, t, 2.8, .16); if(Math.random()<.35){ for(let i=0;i<5;i++) this.pluck(sc[5+i], t+.05+i*.045, .9, .05); } }
+      if(pos===8) this.pluck(sc[Math.random()<.5?3:2], t, 2.2, .12);
+      const rest = pos%4===3 ? .55 : .25;
+      if(Math.random()>rest){
+        this.deg=clamp(this.deg+[-2,-1,-1,0,1,1,2][Math.floor(Math.random()*7)], 4, 13);
+        if(pos===15) this.deg=[5,10][Math.floor(Math.random()*2)];
+        const long = pos===15||pos===7;
+        this.pluck(sc[this.deg], t, long?2.4:1.3, long?.13:.1);
+      }
+      this.step++; this.next+=this.beat*(this.step%4===2&&Math.random()<.2?1.5:1);
+    }
+  },
+  sfx(n){
+    if(!this.ctx||!this.on) return; const c=this.ctx, t=c.currentTime+.01;
+    if(n==='coin'){ this.pluck(1568,t,.35,.08,this.fx); this.pluck(2093,t+.06,.4,.07,this.fx); }
+    else if(n==='chime'){ const sc=this.scale(); [5,7,9,10].forEach((d,i)=>this.pluck(sc[d]*2,t+i*.07,.8,.07,this.fx)); }
+    else if(n==='pluck'){ const sc=this.scale(); this.pluck(sc[7]*2,t,.6,.06,this.fx); }
+    else if(n==='page'){ const len=.12, b=c.createBuffer(1,c.sampleRate*len,c.sampleRate), d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
+      const s=c.createBufferSource(); s.buffer=b; const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=2400; bp.Q.value=.8; const g=c.createGain(); g.gain.value=.05; s.connect(bp); bp.connect(g); g.connect(this.fx); s.start(t); }
+  },
+};
+document.addEventListener('visibilitychange',()=>{ if(!Music.ctx) return; if(document.hidden) Music.ctx.suspend(); else if(Music.on) Music.ctx.resume(); });
+
+/* —— 开局 —— */
+function showCover(){
+  closeSheet(); $('#game').hidden=true; $('#cover').hidden=false;
+  const has=!!store.get(KEY); $('#b-continue').hidden=!has;
+  const g=gallery(), n=ENDING_ORDER.filter(k=>g[k]).length;
+  $('#cover-foot').textContent = n ? `已见结局 ${n} / ${ENDING_ORDER.length}` : '一局约二十分钟 · 有声音，可在右上角关掉';
+}
+function enterGame(){
+  $('#cover').hidden=true; $('#game').hidden=false;
+  Music.start(); Scene.size(); render(); runQ();
+}
+function startNew(){
+  const name=($('#name-in').value||'').replace(/[<>&"'\/]/g,'').trim().slice(0,6)||'阿沅';
+  S=newState(name); EVQ.length=0; store.del(CPKEY); HOOKS.checkpoint();
+  log(S,'你推开了拾芳斋的门。');
+  EVQ.push({title:'拾芳斋', seal:'拾', text:`<p>铺子里一股陈年的胭脂味。柜台上落着灰，货架空着，娘的那本方子摊在你手里。</p><p>第一页你认得：<b>胭脂，红花两味，绢滤三遍。</b>后面几页，字太小，你看不懂。</p><p class="note">每天有三个时辰：清晨、午后、黄昏。用完了就打烊。<br>清晨采花多一枝，黄昏开张客人多。每季最后一天，钱庄来收债。</p>`, opts:[{t:'先去后山'}]});
+  enterGame();
+}
+function continueGame(){
+  const t=store.get(KEY); if(!t){ startNew(); return; }
+  try{ S=migrate(JSON.parse(t)); }catch(e){ startNew(); return; }
+  CP=store.get(CPKEY); EVQ.length=0;
+  enterGame();
+}
+$('#b-start').onclick=startNew;
+$('#b-continue').onclick=continueGame;
+$('#name-in').addEventListener('keydown',e=>{ if(e.key==='Enter') startNew(); });
+$('#b-music').onclick=()=>Music.toggle();
+$('#acts').addEventListener('click',e=>{ const b=e.target.closest('[data-a]'); if(b&&!b.disabled) act(b.dataset.a); if(e.target.closest('#a-end')) HOOKS.restart(); });
+document.querySelector('.tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-panel]'); if(b) panel(b.dataset.panel); });
+Scene.init();
+
+function boot(data){
+  if(data && data.S){ S=migrate(data.S); CP=data.CP||null; $('#cover').hidden=true; $('#game').hidden=false; Scene.size(); render(); }
+  else showCover();
+}
+if(window.claude && window.claude.hot){ window.claude.hot.snapshot(()=>({S, CP})); }
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+
+</body>
+
+</html>
