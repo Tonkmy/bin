@@ -10,7 +10,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap">
+<script>/* 字体异步加载：国内连不上 Google Fonts 时不白屏，直接用系统楷体、宋体 */
+(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap';document.head.appendChild(l);})();</script>
 <style>
 /* 布局：单屏手机卷轴。顶栏（铺名/日子/钱）→ 目标笺 → 画卷 → 行动格 → 货架 → 记事；弹出的花笺承载一切选择。
    配色：黛青夜色作底，藕荷花笺作纸，胭脂红作印，铜色点钱。单一视觉世界，不做明暗两套。 */
@@ -929,6 +930,7 @@ const Scene={
     this.base=document.createElement('canvas');
     addEventListener('resize',()=>{ this.size(); });
     if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ this.key=''; this.mark(); });
+    if(document.fonts&&document.fonts.addEventListener) document.fonts.addEventListener('loadingdone',()=>{ this.key=''; this.mark(); });
     document.addEventListener('visibilitychange',()=>{ if(!document.hidden) this.loop(); });
   },
   size(){

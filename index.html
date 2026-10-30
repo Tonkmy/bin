@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>文游小集</title>
+<meta name="description" content="手机上就能玩的文字小游戏。点开即玩，不用下载。">
+<meta property="og:title" content="文游小集">
+<meta property="og:description" content="手机上就能玩的文字小游戏。点开即玩，不用下载。">
+<script>/* 字体异步加载：连不上 Google Fonts 时不白屏，直接用系统字体 */
+(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600&display=swap';document.head.appendChild(l);})();</script>
+<style>
+/* 布局：一本书的目录页。刊头 → 目录 → 每部游戏一行：左边竖排题签（游戏自己的颜色），右边简介和入口。
+   配色：月白纸、墨色字，每部游戏的题签色作唯一的强调色。 */
+:root{
+  --bg:#eceeea; --paper:#f7f7f3; --ink:#1e2629; --dim:#5d686a; --line:#c8cfcb; --seal:#a42e3b;
+  --f-brush:"Ma Shan Zheng","STXingkai","STKaiti","KaiTi",serif;
+  --f-body:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#121819; --paper:#1a2224; --ink:#e2e8e6; --dim:#93a3a3; --line:#2e3a3c; --seal:#cf5b6c; color-scheme:dark; }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-top:max(32px,env(safe-area-inset-top,0px));padding-bottom:max(32px,env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+a:focus-visible{outline:2px solid var(--seal);outline-offset:3px;border-radius:2px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+
+.mast{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--ink);padding-bottom:14px}
+.mast h1{margin:0;font-family:var(--f-brush);font-weight:400;font-size:clamp(44px,13vw,64px);line-height:1;letter-spacing:.06em}
+.mast p{margin:6px 0 0;color:var(--dim);font-size:14px;letter-spacing:.08em}
+.stamp{flex-shrink:0;width:52px;height:52px;display:grid;place-items:center;background:var(--seal);color:#fbf4f2;
+  font-family:var(--f-brush);font-size:20px;line-height:1.05;text-align:center;border-radius:4px;transform:rotate(-5deg)}
+
+.toc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.toc-head h2{margin:0;font-family:var(--f-brush);font-weight:400;font-size:24px;letter-spacing:.5em}
+.toc-head span{color:var(--dim);font-size:13px;font-variant-numeric:tabular-nums}
+
+.toc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:20px}
+.entry{display:grid;grid-template-columns:88px 1fr;gap:18px;background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px}
+.slip{display:block;text-decoration:none;background:var(--c);border-radius:2px;padding:7px;align-self:start}
+.slip span{display:flex;align-items:center;justify-content:center;height:176px;border:1px solid rgba(255,255,255,.55)}
+.slip b{writing-mode:vertical-rl;font-family:var(--f-brush);font-weight:400;font-size:27px;line-height:1;letter-spacing:.14em;color:#fbf6f3}
+.info{min-width:0;display:flex;flex-direction:column;gap:6px}
+.no{font-size:12.5px;color:var(--dim);letter-spacing:.12em}
+.info h3{margin:0;font-family:var(--f-brush);font-weight:400;font-size:28px;line-height:1.2;letter-spacing:.04em}
+.info h3 a{text-decoration:none}
+.tagline{margin:0;color:var(--c);font-weight:600}
+@media (prefers-color-scheme: dark){ .tagline{color:var(--c2,var(--c))} }
+.intro{margin:0;font-size:15px;color:var(--ink)}
+.tags{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.tags li{font-size:12.5px;border:1px solid var(--line);border-radius:2px;padding:0 7px;color:var(--dim)}
+.meta{margin:0;font-size:13px;color:var(--dim)}
+.play{align-self:flex-start;margin-top:6px;display:inline-block;text-decoration:none;background:var(--c);color:#fbf6f3;
+  font-family:var(--f-brush);font-size:20px;letter-spacing:.2em;padding:5px 18px 3px;border-radius:3px}
+.play:active{filter:brightness(.92)}
+.soon{border-style:dashed;background:transparent;grid-template-columns:1fr;text-align:center;color:var(--dim);font-size:14px;padding:22px 16px}
+
+footer{border-top:1px solid var(--line);padding-top:14px;color:var(--dim);font-size:13px;display:flex;flex-direction:column;gap:4px}
+footer p{margin:0}
+
+@media (max-width:420px){
+  .entry{grid-template-columns:72px 1fr;gap:14px;padding:14px}
+  .slip span{height:156px}.slip b{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <h1>文游小集</h1>
+      <p>手机上就能玩的文字小游戏 · 点开即玩，不用下载</p>
+    </div>
+    <div class="stamp" aria-hidden="true">小<br>集</div>
+  </header>
+
+  <main>
+    <div class="toc-head"><h2>目录</h2><span>共 1 部</span></div>
+    <ol class="toc">
+      <!-- 新游戏：复制下面整个 <li class="entry">，改 href、--c（题签色）和文字。新的放在最上面，卷号依次往后排。 -->
+      <li class="entry" style="--c:#a42e3b;--c2:#d9707f">
+        <a class="slip" href="banben-yanzhipu/" aria-label="开始玩《半本胭脂谱》"><span><b>半本胭脂谱</b></span></a>
+        <div class="info">
+          <div class="no">卷一 · 2026 年 10 月 · 试玩版</div>
+          <h3><a href="banben-yanzhipu/">半本胭脂谱</a></h3>
+          <p class="tagline">一间胭脂铺，半本方子，四千文债。</p>
+          <p class="intro">娘走了，舅舅等着收铺子，你有一年时间。清晨上山采带露的花，午后照方子调胭脂，黄昏开门迎客。年关那天，你想和谁一起守岁？方子的最后一页，由你来写。</p>
+          <ul class="tags"><li>古风</li><li>经营</li><li>女性向</li><li>多结局</li></ul>
+          <p class="meta">一局约 20 分钟 · 5 个结局 · 有背景音乐</p>
+          <a class="play" href="banben-yanzhipu/">开始玩</a>
+        </div>
+      </li>
+      <li class="entry soon">下一部，正在写。</li>
+    </ol>
+  </main>
+
+  <footer>
+    <p>存档保存在你自己的浏览器里。换手机、换浏览器或清理缓存，存档会丢。</p>
+    <p>建议用手机竖屏玩，也可以在电脑上打开。</p>
+  </footer>
+</div>
+</body>
+</html>
